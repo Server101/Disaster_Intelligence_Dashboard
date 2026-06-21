@@ -1,0 +1,213 @@
+incidentTypeKey,incidentType,designatedIncidentTypes
+1,Severe Storm,"4,M,W,Z,F"
+2,Fire,R
+3,Severe Storm,
+4,Fire,"R,Z"
+5,Fire,
+6,Flood,"2,M,W,F"
+7,Winter Storm,W
+8,Straight-Line Winds,2
+9,Flood,W
+10,Severe Storm,"2,M,W,F"
+11,Hurricane,
+12,Severe Storm,W
+13,Hurricane,H
+14,Biological,
+15,Tropical Storm,"4,J"
+16,Flood,
+17,Severe Storm,"2,5,W"
+18,Winter Storm,"5,W"
+19,Chemical,L
+20,Tornado,T
+21,Severe Storm,"2,5,M,W"
+22,Winter Storm,5
+23,Severe Storm,"5,W"
+24,Severe Storm,"2,5,M"
+25,Winter Storm,"2,5"
+26,Fire,Z
+27,Severe Storm,"2,5,M,W,F"
+28,Flood,"2,W,F"
+29,Flood,F
+30,Flood,"W,Z,F,H"
+31,Severe Storm,"W,F"
+32,Severe Storm,"2,W,F,T"
+33,Severe Storm,"5,W,F,T"
+34,Severe Storm,"2,W"
+35,Tropical Storm,J
+36,Hurricane,J
+37,Tornado,
+38,Winter Storm,"5,M"
+39,Earthquake,A
+40,Typhoon,
+41,Snowstorm,"5,S,W"
+42,Earthquake,E
+43,Freezing,
+44,Winter Storm,"5,S,W"
+45,Winter Storm,"5,S"
+46,Snowstorm,"2,5,S"
+47,Severe Storm,"W,T"
+48,Hurricane,"4,H"
+49,Mud/Landslide,
+50,Snowstorm,
+51,Coastal Storm,
+52,Other,
+53,Severe Ice Storm,
+54,Earthquake,
+55,Dam/Levee Break,
+56,Flood,"W,F,T"
+57,Fire,"2,R"
+58,Severe Storm,"2,R,W,T"
+59,Severe Storm,"2,5,R,W,F,T"
+60,Volcanic Eruption,
+61,Flood,"W,F"
+62,Severe Storm,F
+63,Severe Storm,"2,M,W,F,T"
+64,Severe Storm,"W,F,T"
+65,Severe Storm,T
+66,Severe Storm,S
+67,Severe Storm,"2,4,W,F"
+68,Severe Ice Storm,"5,O"
+69,Flood,"2,W,F,T"
+70,Severe Storm,"M,W,F"
+71,Severe Storm,"F,T"
+72,Tropical Storm,"4,H"
+73,Tropical Storm,"2,4,W,F"
+74,Tropical Storm,"4,F,H,T"
+75,Flood,"M,F"
+76,Tropical Storm,"4,8"
+77,Tropical Storm,4
+78,Severe Storm,"2,W,T"
+79,Tropical Depression,"4,8"
+80,Tropical Storm,"4,W"
+81,Other,Z
+82,Hurricane,"4,F,H"
+83,Severe Storm,"2,W,Z,F,T"
+84,Straight-Line Winds,"2,W"
+85,Toxic Substances,
+86,Chemical,
+87,Tropical Storm,"4,M,W,Z"
+88,Terrorist,
+89,Drought,
+90,Hurricane,"8,H"
+91,Tropical Storm,"4,F"
+92,Mud/Landslide,M
+93,Hurricane,"F,H"
+94,Fire,I
+95,Hurricane,F
+96,Snowstorm,Z
+97,Tornado,"F,T"
+98,Human Cause,
+99,Drought,R
+100,Snowstorm,C
+101,Toxic Substances,Y
+102,Tornado,W
+103,Flood,Z
+104,Fishing Losses,
+105,Human Cause,Z
+106,Flood,"M,W"
+107,Flood,S
+108,Snowstorm,D
+109,Fire,"R,W"
+110,Flood,M
+111,Tsunami,
+112,Severe Ice Storm,F
+113,Hurricane,"4,W,H,T"
+114,Coastal Storm,"C,F,T"
+115,Terrorist,R
+116,Severe Storm,G
+117,Hurricane,W
+118,Severe Ice Storm,S
+119,Severe Ice Storm,Z
+120,Severe Storm,"S,Z"
+121,Severe Storm,Z
+122,Flood,"F,T"
+123,Tornado,"W,Z"
+124,Flood,"W,Z"
+125,Drought,Q
+126,Coastal Storm,F
+127,Snowstorm,F
+128,Flood,"R,W"
+129,Tornado,F
+130,Tropical Storm,"4,F,H"
+131,Severe Ice Storm,W
+132,Fire,M
+133,Severe Storm,"R,T"
+134,Severe Storm,"F,M"
+135,Severe Storm,"F,S"
+136,Snowstorm,W
+137,Tornado,"F,W"
+138,Fishing Losses,"C,D"
+139,Tornado,"F,T,W"
+140,Severe Storm,"F,T,W"
+141,Fire,"F,M,Z"
+142,Flood,C
+143,Fire,Y
+144,Flood,Y
+145,Severe Storm,C
+146,Flood,"C,W"
+147,Volcanic Eruption,R
+148,Tropical Storm,H
+149,Freezing,Q
+150,Flood,K
+151,Coastal Storm,"C,F,M,T"
+152,Severe Storm,"F,M,T,W"
+153,Flood,"C,M"
+154,Freezing,P
+155,Earthquake,V
+156,Severe Storm,"W,Z,F"
+157,Tropical Storm,"4,M,W,F"
+158,Tropical Storm,"2,4,M,W,F,H"
+159,Severe Storm,"2,W,F"
+160,Tropical Storm,"4,8,W,F"
+161,Hurricane,"4,M,F,H,T"
+162,Flood,"M,W,F"
+163,Tropical Storm,"4,8,W,F,H"
+164,Tropical Storm,"W,F"
+165,Hurricane,"W,H,T"
+166,Flood,"4,W,F,H,T"
+167,Severe Storm,"2,M,W,T"
+168,Severe Storm,"5,W,F"
+169,Winter Storm,"5,W,F"
+170,Severe Storm,"W,F,K"
+171,Tornado,"2,W,F,T"
+172,Severe Storm,"5,M,W,F,T"
+173,Mud/Landslide,"M,W,F"
+174,Hurricane,"4,M,F,H"
+175,Flood,"W,Z,F"
+176,Tropical Storm,"4,M,F"
+177,Hurricane,"4,M,W,F"
+178,Hurricane,"2,4,W,F,H,T"
+179,Hurricane,"4,W,H"
+180,Flood,"5,M,W,F"
+181,Severe Storm,"5,S,F"
+182,Severe Storm,"2,5,M,O,W,F"
+183,Winter Storm,"5,O,G"
+184,Fire,"M,F"
+185,Tropical Storm,"4,W,F"
+186,Tropical Storm,"4,M,F,H,T"
+187,Tropical Storm,"4,8,M,W,F,H"
+188,Tropical Storm,"2,4,8,C,W,F,T"
+189,Flood,"M,S,W,F"
+190,Winter Storm,"5,S,F"
+191,Severe Storm,"M,F,T"
+192,Severe Storm,"M,F"
+193,Tornado,"W,F"
+194,Flood,"O,S,W,F,T"
+195,Flood,"S,W,F"
+196,Severe Ice Storm,"O,G"
+197,Hurricane,"W,F"
+198,Flood,"M,F,T"
+199,Severe Storm,"Z,T"
+200,Severe Storm,"Z,F"
+201,Severe Storm,"S,F"
+202,Severe Storm,"Z,F,T"
+203,Flood,"W,T"
+204,Severe Storm,"M,S,F"
+205,Severe Storm,"F,W,T"
+206,Severe Storm,"F,Z,T"
+207,Flood,"W,M"
+208,Winter Storm,S
+209,Straight-Line Winds,"2,5"
+210,Typhoon,F
+211,Severe Storm,M
+212,Hurricane,"F,W"
