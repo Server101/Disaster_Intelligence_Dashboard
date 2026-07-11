@@ -84,7 +84,7 @@ maximum_date = valid_dates.max().date()
 st.markdown(
     """
     <div class="hero-panel">
-        <h1>FEMA Disaster Intelligence Dashboard</h1>
+        <h1>Disaster Intelligence Dashboard</h1>
         <p>
             Explore FEMA disaster declaration records across time, geography, incident type,
             declaration type, and FEMA region. Filters update every metric, chart, and table.
