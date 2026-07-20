@@ -1,15 +1,19 @@
 from pathlib import Path
+import os
 import sys
 
 import pandas as pd
 import plotly.express as px
+import requests
 import streamlit as st
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+API_BASE_URL = os.getenv("FEMA_API_BASE_URL", "").rstrip("/")
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from backend.fema_data_service import apply_filters, load_fema_data, sort_region_labels
+from backend.forecast_service import FORECAST_METHOD, generate_region_forecast
 
 st.set_page_config(
     page_title="Disaster Intelligence",
@@ -64,6 +68,46 @@ st.markdown(
 def load_app_data() -> tuple[pd.DataFrame, str, bool]:
     result = load_fema_data(ROOT_DIR, allow_remote=True)
     return result.frame, result.source_label, result.is_sample
+
+
+@st.cache_data(ttl=21600, show_spinner="Calculating the regional forecast...")
+def load_region_forecast(
+    frame: pd.DataFrame,
+    region: str,
+    horizon: int,
+) -> tuple[pd.DataFrame, str]:
+    if API_BASE_URL:
+        try:
+            response = requests.get(
+                f"{API_BASE_URL}/forecast",
+                params={"region": region, "horizon": horizon},
+                timeout=(10, 60),
+            )
+            response.raise_for_status()
+            payload = response.json()
+            api_frame = pd.DataFrame(payload["points"]).rename(
+                columns={
+                    "record_type": "recordType",
+                    "declaration_records": "declarationRecords",
+                    "lower_estimate": "lowerEstimate",
+                    "upper_estimate": "upperEstimate",
+                }
+            )
+            api_frame["month"] = pd.to_datetime(api_frame["month"], errors="coerce")
+            api_frame["region"] = payload["region"]
+            api_frame["method"] = payload["method"]
+            api_frame["generatedAt"] = payload["generated_at"]
+            return api_frame, "AWS backend API"
+        except Exception:
+            pass
+
+    local_frame = generate_region_forecast(
+        frame,
+        region=region,
+        horizon=horizon,
+        history_months=60,
+    )
+    return local_frame, "Streamlit forecasting service"
 
 
 try:
@@ -176,8 +220,14 @@ st.markdown(
 )
 
 st.write("")
-overview_tab, trends_tab, geography_tab, data_tab = st.tabs(
-    ["Overview", "Trends and Seasonality", "Geography and Regions", "Filtered Data"]
+overview_tab, trends_tab, geography_tab, forecast_tab, data_tab = st.tabs(
+    [
+        "Overview",
+        "Trends and Seasonality",
+        "Geography and Regions",
+        "Regional Forecast",
+        "Filtered Data",
+    ]
 )
 
 with overview_tab:
@@ -346,6 +396,156 @@ with geography_tab:
         hide_index=True,
     )
 
+with forecast_tab:
+    st.subheader("Monthly Declaration-Record Forecast")
+    st.write(
+        "Select a FEMA region and forecast horizon to estimate future monthly "
+        "declaration-record volume. The forecast does not predict individual disasters."
+    )
+
+    forecast_controls = st.columns([2, 1])
+    forecast_regions = sort_region_labels(
+        [
+            region
+            for region in data["femaRegion"].dropna().unique().tolist()
+            if region != "Not Reported"
+        ]
+    )
+    default_region = selected_regions[0] if selected_regions else forecast_regions[0]
+    default_region_index = (
+        forecast_regions.index(default_region) if default_region in forecast_regions else 0
+    )
+
+    forecast_region = forecast_controls[0].selectbox(
+        "FEMA region",
+        forecast_regions,
+        index=default_region_index,
+        key="forecast_region",
+    )
+    forecast_horizon = forecast_controls[1].slider(
+        "Forecast horizon",
+        min_value=6,
+        max_value=12,
+        value=12,
+        step=1,
+        format="%d months",
+    )
+
+    try:
+        forecast_data, forecast_source = load_region_forecast(
+            data,
+            forecast_region,
+            forecast_horizon,
+        )
+    except Exception as exc:
+        st.error("The regional forecast could not be calculated.")
+        st.exception(exc)
+    else:
+        historical_data = forecast_data.loc[
+            forecast_data["recordType"] == "Historical"
+        ].copy()
+        projected_data = forecast_data.loc[
+            forecast_data["recordType"] == "Forecast"
+        ].copy()
+
+        forecast_figure = px.line(
+            forecast_data,
+            x="month",
+            y="declarationRecords",
+            color="recordType",
+            markers=True,
+            labels={
+                "month": "Month",
+                "declarationRecords": "Declaration Records",
+                "recordType": "Series",
+            },
+            title=f"{forecast_region}: Historical and Forecast Monthly Volume",
+        )
+        forecast_figure.update_traces(
+            line={"dash": "dash"},
+            selector={"name": "Forecast"},
+        )
+        forecast_figure.update_traces(
+            line={"dash": "solid"},
+            selector={"name": "Historical"},
+        )
+        forecast_figure.update_layout(margin=dict(l=10, r=10, t=55, b=10))
+        st.plotly_chart(forecast_figure, width="stretch")
+
+        if not projected_data.empty:
+            forecast_total = int(projected_data["declarationRecords"].sum())
+            average_month = float(projected_data["declarationRecords"].mean())
+            peak_row = projected_data.loc[
+                projected_data["declarationRecords"].idxmax()
+            ]
+            forecast_metrics = st.columns(3)
+            forecast_metrics[0].metric(
+                "Forecast-Period Records",
+                f"{forecast_total:,}",
+            )
+            forecast_metrics[1].metric(
+                "Average Forecast Month",
+                f"{average_month:,.0f}",
+            )
+            forecast_metrics[2].metric(
+                "Highest Forecast Month",
+                pd.Timestamp(peak_row["month"]).strftime("%b %Y"),
+                f"{int(peak_row['declarationRecords']):,} records",
+            )
+
+        forecast_table = projected_data[
+            [
+                "month",
+                "declarationRecords",
+                "lowerEstimate",
+                "upperEstimate",
+            ]
+        ].copy()
+        forecast_table.columns = [
+            "Month",
+            "Forecast Declaration Records",
+            "Lower Estimate",
+            "Upper Estimate",
+        ]
+        st.dataframe(
+            forecast_table,
+            width="stretch",
+            hide_index=True,
+            column_config={
+                "Month": st.column_config.DateColumn("Month", format="MMM YYYY"),
+            },
+        )
+
+        forecast_download = forecast_data.copy()
+        forecast_download["month"] = forecast_download["month"].dt.strftime("%Y-%m-%d")
+        st.download_button(
+            "Download Regional Forecast as CSV",
+            data=forecast_download.to_csv(index=False).encode("utf-8"),
+            file_name=(
+                f"fema_{forecast_region.lower().replace(' ', '_')}_"
+                f"{forecast_horizon}_month_forecast.csv"
+            ),
+            mime="text/csv",
+            width="stretch",
+        )
+
+        st.caption(f"Forecast source: {forecast_source}")
+        st.info(
+            f"Method: {FORECAST_METHOD}. The estimate uses recent monthly history, "
+            "same-month seasonal patterns, and a limited recent-level adjustment."
+        )
+        st.warning(
+            "Forecast values estimate administrative declaration-record volume. "
+            "They do not predict the timing, location, severity, or occurrence of "
+            "individual disasters. Extreme declaration months can make the estimate "
+            "less stable, and historical patterns may not continue."
+        )
+        if is_sample:
+            st.warning(
+                "The forecast is currently based on the repository sample because the "
+                "full FEMA dataset was unavailable."
+            )
+
 with data_tab:
     display_columns = [
         "disasterNumber",
@@ -393,6 +593,7 @@ with st.expander("Methodology and limitations"):
         - Dashboard totals count declaration records unless a metric explicitly says unique disaster numbers.
         - Declaration records are administrative records and do not directly measure disaster severity or total economic impact.
         - A public deployment first attempts to load the full live FEMA CSV and falls back to the repository sample only when the live source is unavailable.
+        - Regional forecasts estimate monthly declaration-record volume with a seasonal moving-average method and do not predict individual disasters.
         """
     )
 

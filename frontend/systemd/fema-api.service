@@ -1,0 +1,17 @@
+[Unit]
+Description=FEMA Disaster Intelligence FastAPI Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/fema-dashboard
+EnvironmentFile=-/opt/fema-dashboard/.env
+ExecStart=/opt/fema-dashboard/.venv/bin/uvicorn backend.api:app --host 127.0.0.1 --port 8000 --workers 1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

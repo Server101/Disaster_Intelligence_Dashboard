@@ -1,0 +1,2084 @@
+{
+  "metadata": {
+    "minimum_date": "1953-05-02",
+    "maximum_date": "2026-05-20",
+    "years": [
+      1953,
+      1954,
+      1955,
+      1956,
+      1957,
+      1958,
+      1959,
+      1960,
+      1961,
+      1962,
+      1963,
+      1964,
+      1965,
+      1966,
+      1967,
+      1968,
+      1969,
+      1970,
+      1971,
+      1972,
+      1973,
+      1974,
+      1975,
+      1976,
+      1977,
+      1978,
+      1979,
+      1980,
+      1981,
+      1982,
+      1983,
+      1984,
+      1985,
+      1986,
+      1987,
+      1988,
+      1989,
+      1990,
+      1991,
+      1992,
+      1993,
+      1994,
+      1995,
+      1996,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
+    ],
+    "regions": [
+      "Region 1",
+      "Region 2",
+      "Region 3",
+      "Region 4",
+      "Region 5",
+      "Region 6",
+      "Region 7",
+      "Region 8",
+      "Region 9",
+      "Region 10"
+    ],
+    "data_source": "Published project analytics snapshot",
+    "sample_mode": true
+  },
+  "summary": {
+    "declaration_records": 69931,
+    "unique_disaster_numbers": 4917,
+    "top_state": "TX",
+    "top_incident_type": "Severe Storm",
+    "peak_year": 2020
+  },
+  "trends": {
+    "grain": "year",
+    "points": [
+      {
+        "period": "1953",
+        "declaration_records": 13
+      },
+      {
+        "period": "1954",
+        "declaration_records": 17
+      },
+      {
+        "period": "1955",
+        "declaration_records": 18
+      },
+      {
+        "period": "1956",
+        "declaration_records": 16
+      },
+      {
+        "period": "1957",
+        "declaration_records": 16
+      },
+      {
+        "period": "1958",
+        "declaration_records": 7
+      },
+      {
+        "period": "1959",
+        "declaration_records": 7
+      },
+      {
+        "period": "1960",
+        "declaration_records": 12
+      },
+      {
+        "period": "1961",
+        "declaration_records": 12
+      },
+      {
+        "period": "1962",
+        "declaration_records": 22
+      },
+      {
+        "period": "1963",
+        "declaration_records": 20
+      },
+      {
+        "period": "1964",
+        "declaration_records": 136
+      },
+      {
+        "period": "1965",
+        "declaration_records": 429
+      },
+      {
+        "period": "1966",
+        "declaration_records": 120
+      },
+      {
+        "period": "1967",
+        "declaration_records": 196
+      },
+      {
+        "period": "1968",
+        "declaration_records": 161
+      },
+      {
+        "period": "1969",
+        "declaration_records": 505
+      },
+      {
+        "period": "1970",
+        "declaration_records": 223
+      },
+      {
+        "period": "1971",
+        "declaration_records": 174
+      },
+      {
+        "period": "1972",
+        "declaration_records": 526
+      },
+      {
+        "period": "1973",
+        "declaration_records": 872
+      },
+      {
+        "period": "1974",
+        "declaration_records": 621
+      },
+      {
+        "period": "1975",
+        "declaration_records": 461
+      },
+      {
+        "period": "1976",
+        "declaration_records": 591
+      },
+      {
+        "period": "1977",
+        "declaration_records": 1165
+      },
+      {
+        "period": "1978",
+        "declaration_records": 442
+      },
+      {
+        "period": "1979",
+        "declaration_records": 474
+      },
+      {
+        "period": "1980",
+        "declaration_records": 202
+      },
+      {
+        "period": "1981",
+        "declaration_records": 55
+      },
+      {
+        "period": "1982",
+        "declaration_records": 158
+      },
+      {
+        "period": "1983",
+        "declaration_records": 205
+      },
+      {
+        "period": "1984",
+        "declaration_records": 268
+      },
+      {
+        "period": "1985",
+        "declaration_records": 336
+      },
+      {
+        "period": "1986",
+        "declaration_records": 286
+      },
+      {
+        "period": "1987",
+        "declaration_records": 169
+      },
+      {
+        "period": "1988",
+        "declaration_records": 56
+      },
+      {
+        "period": "1989",
+        "declaration_records": 463
+      },
+      {
+        "period": "1990",
+        "declaration_records": 615
+      },
+      {
+        "period": "1991",
+        "declaration_records": 625
+      },
+      {
+        "period": "1992",
+        "declaration_records": 385
+      },
+      {
+        "period": "1993",
+        "declaration_records": 1712
+      },
+      {
+        "period": "1994",
+        "declaration_records": 696
+      },
+      {
+        "period": "1995",
+        "declaration_records": 607
+      },
+      {
+        "period": "1996",
+        "declaration_records": 1695
+      },
+      {
+        "period": "1997",
+        "declaration_records": 922
+      },
+      {
+        "period": "1998",
+        "declaration_records": 1549
+      },
+      {
+        "period": "1999",
+        "declaration_records": 1423
+      },
+      {
+        "period": "2000",
+        "declaration_records": 1082
+      },
+      {
+        "period": "2001",
+        "declaration_records": 1148
+      },
+      {
+        "period": "2002",
+        "declaration_records": 1040
+      },
+      {
+        "period": "2003",
+        "declaration_records": 1574
+      },
+      {
+        "period": "2004",
+        "declaration_records": 1853
+      },
+      {
+        "period": "2005",
+        "declaration_records": 4736
+      },
+      {
+        "period": "2006",
+        "declaration_records": 975
+      },
+      {
+        "period": "2007",
+        "declaration_records": 1640
+      },
+      {
+        "period": "2008",
+        "declaration_records": 2300
+      },
+      {
+        "period": "2009",
+        "declaration_records": 1265
+      },
+      {
+        "period": "2010",
+        "declaration_records": 1635
+      },
+      {
+        "period": "2011",
+        "declaration_records": 2690
+      },
+      {
+        "period": "2012",
+        "declaration_records": 1292
+      },
+      {
+        "period": "2013",
+        "declaration_records": 771
+      },
+      {
+        "period": "2014",
+        "declaration_records": 689
+      },
+      {
+        "period": "2015",
+        "declaration_records": 963
+      },
+      {
+        "period": "2016",
+        "declaration_records": 1194
+      },
+      {
+        "period": "2017",
+        "declaration_records": 1668
+      },
+      {
+        "period": "2018",
+        "declaration_records": 1184
+      },
+      {
+        "period": "2019",
+        "declaration_records": 1666
+      },
+      {
+        "period": "2020",
+        "declaration_records": 9712
+      },
+      {
+        "period": "2021",
+        "declaration_records": 1962
+      },
+      {
+        "period": "2022",
+        "declaration_records": 1141
+      },
+      {
+        "period": "2023",
+        "declaration_records": 1119
+      },
+      {
+        "period": "2024",
+        "declaration_records": 2364
+      },
+      {
+        "period": "2025",
+        "declaration_records": 1203
+      },
+      {
+        "period": "2026",
+        "declaration_records": 1382
+      }
+    ]
+  },
+  "incident_types": {
+    "points": [
+      {
+        "name": "Severe Storm",
+        "declaration_records": 19311
+      },
+      {
+        "name": "Hurricane",
+        "declaration_records": 13726
+      },
+      {
+        "name": "Flood",
+        "declaration_records": 11288
+      },
+      {
+        "name": "Biological",
+        "declaration_records": 7857
+      },
+      {
+        "name": "Fire",
+        "declaration_records": 3876
+      },
+      {
+        "name": "Snowstorm",
+        "declaration_records": 3707
+      },
+      {
+        "name": "Severe Ice Storm",
+        "declaration_records": 2956
+      },
+      {
+        "name": "Tornado",
+        "declaration_records": 1623
+      },
+      {
+        "name": "Winter Storm",
+        "declaration_records": 1374
+      },
+      {
+        "name": "Drought",
+        "declaration_records": 1292
+      }
+    ]
+  },
+  "regions": {
+    "points": [
+      {
+        "name": "Region 4",
+        "declaration_records": 18465
+      },
+      {
+        "name": "Region 6",
+        "declaration_records": 13022
+      },
+      {
+        "name": "Region 7",
+        "declaration_records": 8254
+      },
+      {
+        "name": "Region 5",
+        "declaration_records": 7523
+      },
+      {
+        "name": "Region 3",
+        "declaration_records": 5894
+      },
+      {
+        "name": "Region 8",
+        "declaration_records": 4638
+      },
+      {
+        "name": "Region 2",
+        "declaration_records": 4367
+      },
+      {
+        "name": "Region 9",
+        "declaration_records": 2708
+      },
+      {
+        "name": "Region 1",
+        "declaration_records": 2593
+      },
+      {
+        "name": "Region 10",
+        "declaration_records": 2467
+      }
+    ]
+  },
+  "states": {
+    "points": [
+      {
+        "name": "TX",
+        "declaration_records": 5391
+      },
+      {
+        "name": "KY",
+        "declaration_records": 3373
+      },
+      {
+        "name": "MO",
+        "declaration_records": 2830
+      },
+      {
+        "name": "FL",
+        "declaration_records": 2794
+      },
+      {
+        "name": "GA",
+        "declaration_records": 2768
+      },
+      {
+        "name": "VA",
+        "declaration_records": 2756
+      },
+      {
+        "name": "LA",
+        "declaration_records": 2671
+      },
+      {
+        "name": "OK",
+        "declaration_records": 2593
+      },
+      {
+        "name": "NC",
+        "declaration_records": 2431
+      },
+      {
+        "name": "MS",
+        "declaration_records": 2129
+      }
+    ]
+  },
+  "seasonality": {
+    "points": [
+      {
+        "name": "January",
+        "declaration_records": 6111
+      },
+      {
+        "name": "February",
+        "declaration_records": 4955
+      },
+      {
+        "name": "March",
+        "declaration_records": 11140
+      },
+      {
+        "name": "April",
+        "declaration_records": 7128
+      },
+      {
+        "name": "May",
+        "declaration_records": 5240
+      },
+      {
+        "name": "June",
+        "declaration_records": 4931
+      },
+      {
+        "name": "July",
+        "declaration_records": 5101
+      },
+      {
+        "name": "August",
+        "declaration_records": 5849
+      },
+      {
+        "name": "September",
+        "declaration_records": 11721
+      },
+      {
+        "name": "October",
+        "declaration_records": 4007
+      },
+      {
+        "name": "November",
+        "declaration_records": 1674
+      },
+      {
+        "name": "December",
+        "declaration_records": 2074
+      }
+    ]
+  },
+  "forecasts": {
+    "Region 1": {
+      "region": "Region 1",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        }
+      ]
+    },
+    "Region 2": {
+      "region": "Region 2",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 10,
+          "lower_estimate": 6,
+          "upper_estimate": 14
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 9,
+          "lower_estimate": 6,
+          "upper_estimate": 12
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        }
+      ]
+    },
+    "Region 3": {
+      "region": "Region 3",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 2,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 13,
+          "lower_estimate": 8,
+          "upper_estimate": 18
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 13,
+          "lower_estimate": 8,
+          "upper_estimate": 18
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        }
+      ]
+    },
+    "Region 4": {
+      "region": "Region 4",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-03",
+          "record_type": "Historical",
+          "declaration_records": 3,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-05",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-06",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-07",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-08",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-09",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-10",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-11",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-12",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-01",
+          "record_type": "Historical",
+          "declaration_records": 112,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-04",
+          "record_type": "Historical",
+          "declaration_records": 3,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 18,
+          "lower_estimate": 12,
+          "upper_estimate": 24
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 18,
+          "lower_estimate": 12,
+          "upper_estimate": 24
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 21,
+          "lower_estimate": 14,
+          "upper_estimate": 28
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 42,
+          "lower_estimate": 27,
+          "upper_estimate": 57
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 14,
+          "lower_estimate": 9,
+          "upper_estimate": 19
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 22,
+          "lower_estimate": 14,
+          "upper_estimate": 30
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 18,
+          "lower_estimate": 12,
+          "upper_estimate": 24
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 40,
+          "lower_estimate": 26,
+          "upper_estimate": 54
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 25,
+          "lower_estimate": 16,
+          "upper_estimate": 34
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 19,
+          "lower_estimate": 12,
+          "upper_estimate": 26
+        }
+      ]
+    },
+    "Region 5": {
+      "region": "Region 5",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 9,
+          "lower_estimate": 6,
+          "upper_estimate": 12
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 17,
+          "lower_estimate": 11,
+          "upper_estimate": 23
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 9,
+          "lower_estimate": 6,
+          "upper_estimate": 12
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 7,
+          "lower_estimate": 5,
+          "upper_estimate": 9
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 16,
+          "lower_estimate": 10,
+          "upper_estimate": 22
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 10,
+          "lower_estimate": 6,
+          "upper_estimate": 14
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        }
+      ]
+    },
+    "Region 6": {
+      "region": "Region 6",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-03",
+          "record_type": "Historical",
+          "declaration_records": 4,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-05",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-06",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-07",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-08",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-09",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-10",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-11",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-12",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-05",
+          "record_type": "Historical",
+          "declaration_records": 2,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 12,
+          "lower_estimate": 8,
+          "upper_estimate": 16
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 13,
+          "lower_estimate": 8,
+          "upper_estimate": 18
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 15,
+          "lower_estimate": 10,
+          "upper_estimate": 20
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 29,
+          "lower_estimate": 19,
+          "upper_estimate": 39
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 10,
+          "lower_estimate": 6,
+          "upper_estimate": 14
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 15,
+          "lower_estimate": 10,
+          "upper_estimate": 20
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 12,
+          "lower_estimate": 8,
+          "upper_estimate": 16
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 28,
+          "lower_estimate": 18,
+          "upper_estimate": 38
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 18,
+          "lower_estimate": 12,
+          "upper_estimate": 24
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 13,
+          "lower_estimate": 8,
+          "upper_estimate": 18
+        }
+      ]
+    },
+    "Region 7": {
+      "region": "Region 7",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-03",
+          "record_type": "Historical",
+          "declaration_records": 1,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-05",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-06",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-07",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-08",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-09",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-10",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-11",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-12",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-03",
+          "record_type": "Historical",
+          "declaration_records": 7,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 9,
+          "lower_estimate": 6,
+          "upper_estimate": 12
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 19,
+          "lower_estimate": 12,
+          "upper_estimate": 26
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 10,
+          "lower_estimate": 6,
+          "upper_estimate": 14
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 18,
+          "lower_estimate": 12,
+          "upper_estimate": 24
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 11,
+          "lower_estimate": 7,
+          "upper_estimate": 15
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 8,
+          "lower_estimate": 5,
+          "upper_estimate": 11
+        }
+      ]
+    },
+    "Region 8": {
+      "region": "Region 8",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 11,
+          "lower_estimate": 7,
+          "upper_estimate": 15
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 10,
+          "lower_estimate": 6,
+          "upper_estimate": 14
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        }
+      ]
+    },
+    "Region 9": {
+      "region": "Region 9",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-05",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-06",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-07",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-08",
+          "record_type": "Historical",
+          "declaration_records": 1,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-09",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-10",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-11",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-12",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-04",
+          "record_type": "Historical",
+          "declaration_records": 6,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-05",
+          "record_type": "Historical",
+          "declaration_records": 2,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 4,
+          "lower_estimate": 3,
+          "upper_estimate": 5
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        }
+      ]
+    },
+    "Region 10": {
+      "region": "Region 10",
+      "horizon": 12,
+      "method": "Published website preview; the deployed API uses the full regional forecasting service",
+      "generated_at": "2026-07-20T00:00:00+00:00",
+      "points": [
+        {
+          "month": "2025-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-04",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-05",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-06",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-07",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-08",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-09",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-10",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-11",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2025-12",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-01",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-02",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-03",
+          "record_type": "Historical",
+          "declaration_records": 0,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-04",
+          "record_type": "Historical",
+          "declaration_records": 2,
+          "lower_estimate": null,
+          "upper_estimate": null
+        },
+        {
+          "month": "2026-06",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-07",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-08",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2026-09",
+          "record_type": "Forecast",
+          "declaration_records": 6,
+          "lower_estimate": 4,
+          "upper_estimate": 8
+        },
+        {
+          "month": "2026-10",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2026-11",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2026-12",
+          "record_type": "Forecast",
+          "declaration_records": 1,
+          "lower_estimate": 1,
+          "upper_estimate": 1
+        },
+        {
+          "month": "2027-01",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-02",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        },
+        {
+          "month": "2027-03",
+          "record_type": "Forecast",
+          "declaration_records": 5,
+          "lower_estimate": 3,
+          "upper_estimate": 7
+        },
+        {
+          "month": "2027-04",
+          "record_type": "Forecast",
+          "declaration_records": 3,
+          "lower_estimate": 2,
+          "upper_estimate": 4
+        },
+        {
+          "month": "2027-05",
+          "record_type": "Forecast",
+          "declaration_records": 2,
+          "lower_estimate": 1,
+          "upper_estimate": 3
+        }
+      ]
+    }
+  }
+}

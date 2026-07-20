@@ -103,3 +103,42 @@ The app automatically opens with the repository sample and displays a warning. R
 ### App remains private
 
 Open the Streamlit sharing settings and allow public access before submitting the link.
+
+## Forecasting section
+
+Run the forecast output script before reviewing the full local project:
+
+```bash
+python analytics/scripts/07_forecast_declarations.py
+```
+
+The Streamlit application also calculates the selected regional forecast at runtime, so the forecast tab remains interactive when the saved forecast CSV is not present.
+
+The forecast tab includes:
+
+- FEMA region selector
+- 6–12 month horizon selector
+- Historical and forecast monthly line chart
+- Forecast-period metrics
+- Forecast output table
+- Forecast CSV download
+- Method and limitation statements
+
+## Connect Streamlit to the AWS API
+
+After the CloudFront deployment is working, add this Streamlit secret or environment variable:
+
+```text
+FEMA_API_BASE_URL=https://REPLACE_WITH_CLOUDFRONT_DOMAIN.cloudfront.net/api
+```
+
+The Streamlit forecast tab first attempts the AWS `/forecast` endpoint. If the request fails, it uses the local forecasting service so the public dashboard remains usable.
+
+After adding the variable:
+
+1. Reboot the Streamlit application.
+2. Open the Regional Forecast tab.
+3. Select a FEMA region.
+4. Select a 6–12 month horizon.
+5. Confirm the caption identifies the AWS backend API as the forecast source.
+6. Test the forecast CSV download.
