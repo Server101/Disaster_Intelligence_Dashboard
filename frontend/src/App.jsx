@@ -2,7 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import dashboardSnapshot from './data/dashboardSnapshot.json'
 import './App.css'
 
-const STREAMLIT_URL = 'https://disaster-intelligence-dashboard.streamlit.app/'
+const STREAMLIT_URL = (import.meta.env.VITE_STREAMLIT_URL || 'https://disaster-intelligence-dashboard.streamlit.app').replace(/\/+$/, '')
+const STREAMLIT_EMBED_URL = `${STREAMLIT_URL}/?embed=true&embed_options=dark_theme`
+const STREAMLIT_VIEWER = {
+  title: 'Live Streamlit Analytics',
+  url: STREAMLIT_EMBED_URL,
+  externalUrl: `${STREAMLIT_URL}/`,
+  note: 'Streamlit iframe embedding works only for public Community Cloud apps. If this view does not load, open it separately and confirm the app sharing setting is public.',
+}
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 const TABLEAU_URL = import.meta.env.VITE_TABLEAU_URL || ''
 const GITHUB_URL = import.meta.env.VITE_GITHUB_URL || ''
@@ -225,6 +232,8 @@ function ViewerModal({ viewer, onClose }) {
 
   if (!viewer) return null
 
+  const externalUrl = viewer.externalUrl || viewer.url
+
   return (
     <div className="viewer-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="viewer-modal" role="dialog" aria-modal="true" aria-label={viewer.title}>
@@ -234,8 +243,8 @@ function ViewerModal({ viewer, onClose }) {
             <strong>{viewer.title}</strong>
           </div>
           <div className="viewer-actions">
-            {viewer.url ? (
-              <a href={viewer.url} target="_blank" rel="noreferrer">Open separately</a>
+            {externalUrl ? (
+              <a href={externalUrl} target="_blank" rel="noreferrer">Open separately</a>
             ) : null}
             <button type="button" onClick={onClose} aria-label="Close embedded view">×</button>
           </div>
@@ -244,8 +253,9 @@ function ViewerModal({ viewer, onClose }) {
           <iframe
             src={viewer.url}
             title={viewer.title}
-            allow="fullscreen"
-            loading="lazy"
+            allow="fullscreen; clipboard-read; clipboard-write"
+            allowFullScreen
+            loading="eager"
             referrerPolicy="strict-origin-when-cross-origin"
           ></iframe>
         ) : (
@@ -254,7 +264,7 @@ function ViewerModal({ viewer, onClose }) {
             <p>Add the published Tableau URL to VITE_TABLEAU_URL before the production frontend build.</p>
           </div>
         )}
-        <p className="viewer-note">If the embedded service blocks iframe viewing, use “Open separately” above.</p>
+        <p className="viewer-note">{viewer.note || 'If the embedded service blocks iframe viewing, use “Open separately” above.'}</p>
       </section>
     </div>
   )
@@ -441,7 +451,7 @@ function App() {
         <button
           className="header-link"
           type="button"
-          onClick={() => setViewer({ title: 'Live Streamlit Analytics', url: STREAMLIT_URL })}
+          onClick={() => setViewer(STREAMLIT_VIEWER)}
         >
           Open Streamlit
         </button>
@@ -460,7 +470,7 @@ function App() {
               <button
                 className="secondary-button"
                 type="button"
-                onClick={() => setViewer({ title: 'Live Streamlit Analytics', url: STREAMLIT_URL })}
+                onClick={() => setViewer(STREAMLIT_VIEWER)}
               >
                 View Streamlit Popout
               </button>
@@ -699,7 +709,7 @@ function App() {
               <span className="dashboard-tag live">Live</span>
               <h3>Streamlit Analytics</h3>
               <p>Detailed filters, KPI cards, annual and monthly trends, seasonality, regional comparisons, data tables, forecasting, and CSV downloads.</p>
-              <button type="button" onClick={() => setViewer({ title: 'Live Streamlit Analytics', url: STREAMLIT_URL })}>Open Streamlit Popout</button>
+              <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Open Streamlit Popout</button>
             </article>
             <article>
               <span className={`dashboard-tag ${TABLEAU_URL ? 'live' : 'development'}`}>{TABLEAU_URL ? 'Published' : 'In development'}</span>
@@ -736,7 +746,7 @@ function App() {
           <p>Data source: FEMA OpenFEMA Disaster Declarations Summaries v2.</p>
         </div>
         <div className="footer-links">
-          <button type="button" onClick={() => setViewer({ title: 'Live Streamlit Analytics', url: STREAMLIT_URL })}>Streamlit</button>
+          <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit</button>
           <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Dashboard', url: TABLEAU_URL })}>Tableau</button>
           {GITHUB_URL ? <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> : <span>Private GitHub repository</span>}
           <a href="#top">Back to top</a>
