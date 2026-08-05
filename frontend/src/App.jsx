@@ -5,7 +5,7 @@ import './App.css'
 const STREAMLIT_URL = (import.meta.env.VITE_STREAMLIT_URL || 'https://disaster-intelligence-dashboard.streamlit.app').replace(/\/+$/, '')
 const STREAMLIT_EMBED_URL = `${STREAMLIT_URL}/?embed=true&embed_options=dark_theme`
 const STREAMLIT_VIEWER = {
-  title: 'Search FEMA Declarations by State in Streamlit',
+  title: 'Search Declarations by State in Streamlit',
   url: STREAMLIT_EMBED_URL,
   externalUrl: `${STREAMLIT_URL}/`,
   note: 'Use the Streamlit state and territory filters to explore declaration records, incident types, trends, regional patterns, and downloadable data. If the embedded view does not load, open it separately.',
@@ -33,7 +33,7 @@ const INSIGHT_OPTIONS = [
   ['seasonality', 'Top month and season'],
   ['states', 'Top five states and territories'],
   ['incidents', 'Top five incident types'],
-  ['regions', 'Top five FEMA regions'],
+  ['regions', 'Top five regions'],
   ['trend', 'Long-term trend interpretation'],
   ['spikes', 'Historical spikes and their meaning'],
   ['record-comparison', 'Declaration records vs. unique disasters'],
@@ -44,8 +44,8 @@ const formatRegionLabel = (region, compact = false) => {
   const detail = REGION_DETAILS[region]
   if (!detail) return region
   return compact
-    ? `FEMA ${region} — ${detail.name}`
-    : `FEMA ${region} — ${detail.name} (${detail.areas})`
+    ? `${region} — ${detail.name}`
+    : `${region} — ${detail.name} (${detail.areas})`
 }
 
 const nextForecastMonthKey = () => {
@@ -158,7 +158,7 @@ function AnnualTrendChart({ points }) {
   { point: points[0], index: 0 })
 
   return (
-    <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Annual FEMA declaration record trend">
+    <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Annual declaration record trend">
       <defs>
         <linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.34" />
@@ -240,7 +240,7 @@ function SeasonalityChart({ points }) {
 function InsightLimitation({ children }) {
   return (
     <div className="insight-limitation">
-      <strong>Interpretation limit</strong>
+      <strong>Helpful context</strong>
       <span>{children}</span>
     </div>
   )
@@ -270,7 +270,7 @@ function InsightExplorer({
         <div>
           <span>Guided findings</span>
           <h3>Insight Explorer</h3>
-          <p>Select a question and the panel will reorganize the same filtered dashboard data into an interpretation-ready result.</p>
+          <p>Choose a topic to see the strongest result, a brief explanation, and helpful context for interpreting it.</p>
         </div>
         <label>
           <span>Explore a result</span>
@@ -308,7 +308,7 @@ function InsightExplorer({
           : null}
 
         {mode === 'regions'
-          ? renderRanked(insights.top_regions, (name) => formatRegionLabel(name, true), 'FEMA regions differ in population, geography, hazard exposure, and number of jurisdictions, so raw totals are not population-adjusted risk rates.')
+          ? renderRanked(insights.top_regions, (name) => formatRegionLabel(name, true), 'Region totals are raw counts and are not adjusted for population or geographic size.')
           : null}
 
         {mode === 'trend' ? (
@@ -753,7 +753,7 @@ function App() {
     const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' }))
     const link = document.createElement('a')
     link.href = url
-    link.download = `fema_${forecast.region.toLowerCase().replace(' ', '_')}_${forecastHorizon}_month_forecast.csv`
+    link.download = `disaster_intelligence_${forecast.region.toLowerCase().replace(' ', '_')}_${forecastHorizon}_month_forecast.csv`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -761,11 +761,11 @@ function App() {
   return (
     <div className="site-shell">
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="FEMA Disaster Intelligence home">
+        <a className="brand" href="#top" aria-label="Disaster Intelligence home">
           <span className="brand-mark">DI</span>
           <span>
             <strong>Disaster Intelligence</strong>
-            <small>FEMA Analytics Capstone</small>
+            <small>Analytics Capstone</small>
           </span>
         </a>
         <nav aria-label="Primary navigation">
@@ -786,10 +786,10 @@ function App() {
       <main id="top">
         <section className="hero-section">
           <div className="hero-copy">
-            <p className="eyebrow">OpenFEMA · Python · FastAPI · AWS · Tableau</p>
+            <p className="eyebrow">Public Data · Python · FastAPI · AWS · Tableau</p>
             <h1>Disaster Intelligence Dashboard</h1>
             <p className="hero-summary">
-              Explore historical declaration records across time, incident type, state, and FEMA region. The website includes its own analytics dashboard and regional forecast, with Streamlit and Tableau available in embedded popout views.
+              Explore declaration history by time, incident type, state, and region. Use the interactive dashboard for quick comparisons, open Streamlit for state-level searches, and review future monthly estimates in the forecast section.
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="#analytics">Explore Website Analytics</a>
@@ -821,7 +821,7 @@ function App() {
             <div className="hero-card-heading">
               <span>Project record coverage</span>
               <strong>{formatNumber.format(summary.declaration_records)}</strong>
-              <small>FEMA declaration records</small>
+              <small>Declaration records</small>
             </div>
             <div className="hero-stat-grid">
               <div><span>Years</span><strong>{metadata.years[0]}–{metadata.years[metadata.years.length - 1]}</strong></div>
@@ -830,7 +830,7 @@ function App() {
               <div><span>Peak year</span><strong>{summary.peak_year}</strong></div>
             </div>
             <div className="data-flow-mini">
-              <span>OpenFEMA</span><b>→</b><span>S3</span><b>→</b><span>FastAPI</span><b>→</b><span>Analytics</span>
+              <span>Public data</span><b>→</b><span>S3</span><b>→</b><span>FastAPI</span><b>→</b><span>Analytics</span>
             </div>
           </div>
         </section>
@@ -841,7 +841,7 @@ function App() {
               <p className="section-label">Interactive website analytics</p>
               <h2>Analyze the declaration record history directly on this page.</h2>
             </div>
-            <p>Filters update the API-driven metrics and charts after AWS deployment. The verified project snapshot remains visible when the API is offline.</p>
+            <p>Choose a year range and region to update the metrics, charts, and insights. Use Reset filters to return to the complete history.</p>
           </div>
 
           <div className="filter-panel">
@@ -858,7 +858,7 @@ function App() {
               </select>
             </label>
             <label>
-              <span>FEMA region and covered areas</span>
+              <span>Region and covered areas</span>
               <select value={filters.region} onChange={(event) => setFilters((current) => ({ ...current, region: event.target.value }))} disabled={filterDisabled}>
                 <option>All Regions</option>
                 {metadata.regions.map((region) => <option value={region} key={region}>{formatRegionLabel(region)}</option>)}
@@ -882,7 +882,7 @@ function App() {
 
           <div className="metric-strip">
             <MetricCard label="Declaration Records" value={formatNumber.format(summary.declaration_records)} note="Administrative declaration rows" />
-            <MetricCard label="Unique Disaster Numbers" value={formatNumber.format(summary.unique_disaster_numbers)} note="Distinct FEMA disaster IDs" />
+            <MetricCard label="Unique Disaster Numbers" value={formatNumber.format(summary.unique_disaster_numbers)} note="Distinct disaster IDs" />
             <MetricCard label="Top State or Territory" value={summary.top_state} />
             <MetricCard label="Top Incident Type" value={summary.top_incident_type} />
             <MetricCard label="Peak Declaration Year" value={summary.peak_year} />
@@ -919,7 +919,7 @@ function App() {
 
             <article className="chart-card">
               <div className="chart-heading">
-                <div><span>Regional comparison</span><h3>Declaration records by FEMA region</h3></div>
+                <div><span>Regional comparison</span><h3>Declaration records by region</h3></div>
                 <small>All regions</small>
               </div>
               <HorizontalBarChart points={regions.points} compact labelFormatter={(name) => formatRegionLabel(name, true)} />
@@ -947,9 +947,9 @@ function App() {
           <div className="section-heading forecast-heading">
             <div>
               <p className="section-label">Regional forecasting</p>
-              <h2>Estimate future monthly declaration-record volume.</h2>
+              <h2>Forecast future monthly declaration-record volume by region.</h2>
             </div>
-            <p>The backtested model compares a seasonal-trend regression with a seasonal-naive benchmark, selects the better holdout performer, and begins with the next full calendar month.</p>
+            <p>Choose a region and forecast length to view expected monthly declaration volume, recent history, and a reasonable range for each future month.</p>
           </div>
 
           <div className="forecast-controls">
@@ -1009,7 +1009,7 @@ function App() {
             </table>
           </div>
           <div className="forecast-warning">
-            Forecast rows begin with the next full calendar month, so expired forecast months are never displayed. The estimates can still be affected by irregular declaration surges, reporting delays, policy changes, and patterns that do not continue. They are not predictions of disaster timing, location, severity, or occurrence.
+            Use this forecast as a planning guide for future monthly declaration volume. Results begin with the next full month and may change as new records are reported. It estimates record activity, not the timing or severity of individual disasters.
           </div>
         </section>
 
@@ -1017,13 +1017,13 @@ function App() {
           <div className="section-heading">
             <div>
               <p className="section-label">AWS-supported architecture and API documentation</p>
-              <h2>How OpenFEMA data reaches the public dashboard and API.</h2>
+              <h2>How declaration data reaches the public dashboard and API.</h2>
             </div>
-            <p>The architecture flow appears above the live FastAPI documentation so users can understand how each request moves through the AWS environment.</p>
+            <p>Follow the steps below to see where the data comes from, how it is prepared, and how the dashboard delivers each result.</p>
           </div>
           <div className="architecture-flow">
             {[
-              ['OpenFEMA API', 'Source declarations'],
+              ['OpenFEMA source', 'Public declaration records'],
               ['Python pipeline', 'Extract, clean, curate'],
               ['Amazon S3', 'Datasets and website'],
               ['Forecast service', 'Regional monthly estimates'],
@@ -1041,7 +1041,7 @@ function App() {
             <article>
               <span className={`dashboard-tag ${apiState === 'connected' ? 'live' : 'development'}`}>{apiState === 'connected' ? 'Connected' : 'AWS-ready'}</span>
               <h3>FastAPI Documentation and Data Service</h3>
-              <p>Review the live health, metadata, summary, insight, trend, region, state, incident-type, seasonality, and forecast endpoints that connect the public website to the processed FEMA data stored in Amazon S3.</p>
+              <p>Open the live documentation to review available data endpoints, see request options, and test dashboard results directly in your browser.</p>
               <a href={`${API_BASE_URL}/docs`} target="_blank" rel="noreferrer">Open API Documentation</a>
             </article>
           </div>
@@ -1051,9 +1051,9 @@ function App() {
           <div className="section-heading">
             <div>
               <p className="section-label">Embedded project dashboards</p>
-              <h2>Search FEMA declarations by state in Streamlit and explore the disaster map in Tableau.</h2>
+              <h2>Search declarations by state in Streamlit and explore the disaster map in Tableau.</h2>
             </div>
-            <p>Streamlit provides detailed state and territory filtering, while Tableau will provide an interactive geographic map. Both tools open in large in-page popouts with separate-window options when needed.</p>
+            <p>Use Streamlit to search and filter records by state or territory, or open the Tableau map to explore geographic patterns. Each tool can open here or in a separate window.</p>
           </div>
           <div className="dashboard-grid dashboard-grid-two">
             <article>
@@ -1074,21 +1074,21 @@ function App() {
         <section className="details-section">
           <article>
             <p className="section-label">Research question</p>
-            <h3>How do FEMA disaster declarations change across time and location?</h3>
+            <h3>How do disaster declarations change across time and location?</h3>
             <p>The analysis examines long-term trends, seasonal activity, geographic concentrations, regional differences, and incident-type patterns that can support planning and situational awareness.</p>
           </article>
           <article>
             <p className="section-label">Data limitations</p>
             <h3>Declaration records are not a direct measure of disaster severity.</h3>
-            <p>A disaster number can appear in multiple rows because designated areas are recorded separately. FEMA declarations also do not represent every hazardous event or total economic loss.</p>
+            <p>A disaster number can appear in multiple rows because designated areas are recorded separately. Declaration records also do not represent every hazardous event or total economic loss.</p>
           </article>
         </section>
       </main>
 
       <footer>
         <div>
-          <strong>FEMA Disaster Intelligence Dashboard</strong>
-          <p>Data source: FEMA OpenFEMA Disaster Declarations Summaries v2.</p>
+          <strong>Disaster Intelligence Dashboard</strong>
+          <p>Data source: Disaster Declarations Summaries v2.</p>
         </div>
         <div className="footer-links">
           <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit State Search</button>
