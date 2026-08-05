@@ -29,7 +29,7 @@ class AwsDataService:
         self._s3 = boto3.client("s3", region_name=self.aws_region)
         self._dashboard_cache: DataLoadResult | None = None
         self._dashboard_cache_time = 0.0
-        self._forecast_cache: dict[tuple[str, int, int], tuple[float, pd.DataFrame]] = {}
+        self._forecast_cache: dict[tuple[str, int, int, str], tuple[float, pd.DataFrame]] = {}
 
     def _cache_is_fresh(self, cached_at: float) -> bool:
         return time.monotonic() - cached_at < self.cache_seconds
@@ -69,7 +69,8 @@ class AwsDataService:
         horizon: int,
         history_months: int = 60,
     ) -> pd.DataFrame:
-        cache_key = (region, horizon, history_months)
+        cache_month = pd.Timestamp.now(tz="UTC").strftime("%Y-%m")
+        cache_key = (region, horizon, history_months, cache_month)
         cached = self._forecast_cache.get(cache_key)
         if cached and self._cache_is_fresh(cached[0]):
             return cached[1].copy()
@@ -80,12 +81,35 @@ class AwsDataService:
                 stored = self._read_s3_csv(self.forecast_key)
                 stored["month"] = pd.to_datetime(stored["month"], errors="coerce")
                 regional = stored.loc[stored["region"] == region].copy()
-                historical = regional.loc[regional["recordType"] == "Historical"].tail(
-                    history_months
+                current_month = (
+                    pd.Timestamp.now(tz="UTC")
+                    .tz_localize(None)
+                    .to_period("M")
+                    .to_timestamp()
                 )
-                forecast = regional.loc[regional["recordType"] == "Forecast"].head(horizon)
+                forecast_floor = current_month + pd.offsets.MonthBegin(1)
+                historical = (
+                    regional.loc[
+                        (regional["recordType"] == "Historical")
+                        & (regional["month"] < forecast_floor)
+                    ]
+                    .sort_values("month")
+                    .tail(history_months)
+                )
+                forecast = (
+                    regional.loc[
+                        (regional["recordType"] == "Forecast")
+                        & (regional["month"] >= forecast_floor)
+                    ]
+                    .sort_values("month")
+                    .head(horizon)
+                )
                 candidate = pd.concat([historical, forecast], ignore_index=True)
-                if not candidate.empty and len(forecast) >= horizon:
+                starts_on_time = (
+                    not forecast.empty
+                    and pd.Timestamp(forecast["month"].iloc[0]) == forecast_floor
+                )
+                if not candidate.empty and len(forecast) >= horizon and starts_on_time:
                     combined = candidate
             except Exception:
                 combined = None

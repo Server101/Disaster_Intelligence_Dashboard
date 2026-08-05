@@ -16,6 +16,109 @@ const GITHUB_URL = import.meta.env.VITE_GITHUB_URL || ''
 const formatNumber = new Intl.NumberFormat('en-US')
 const SNAPSHOT = dashboardSnapshot
 
+const REGION_DETAILS = {
+  'Region 1': { name: 'New England', areas: 'CT, ME, MA, NH, RI, VT' },
+  'Region 2': { name: 'Northeast & Caribbean', areas: 'NJ, NY, Puerto Rico, U.S. Virgin Islands' },
+  'Region 3': { name: 'Mid-Atlantic', areas: 'DE, DC, MD, PA, VA, WV' },
+  'Region 4': { name: 'Southeast', areas: 'AL, FL, GA, KY, MS, NC, SC, TN' },
+  'Region 5': { name: 'Great Lakes', areas: 'IL, IN, MI, MN, OH, WI' },
+  'Region 6': { name: 'South Central', areas: 'AR, LA, NM, OK, TX' },
+  'Region 7': { name: 'Central Plains', areas: 'IA, KS, MO, NE' },
+  'Region 8': { name: 'Mountain', areas: 'CO, MT, ND, SD, UT, WY' },
+  'Region 9': { name: 'Pacific Southwest & Islands', areas: 'AZ, CA, HI, NV and Pacific territories' },
+  'Region 10': { name: 'Pacific Northwest', areas: 'AK, ID, OR, WA' },
+}
+
+const INSIGHT_OPTIONS = [
+  ['seasonality', 'Top month and season'],
+  ['states', 'Top five states and territories'],
+  ['incidents', 'Top five incident types'],
+  ['regions', 'Top five FEMA regions'],
+  ['trend', 'Long-term trend interpretation'],
+  ['spikes', 'Historical spikes and their meaning'],
+  ['record-comparison', 'Declaration records vs. unique disasters'],
+  ['forecast-comparison', 'Compare three regional forecasts'],
+]
+
+const formatRegionLabel = (region, compact = false) => {
+  const detail = REGION_DETAILS[region]
+  if (!detail) return region
+  return compact
+    ? `${region} — ${detail.name}`
+    : `${region} — ${detail.name} (${detail.areas})`
+}
+
+const nextForecastMonthKey = () => {
+  const now = new Date()
+  const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+  return nextMonth.toISOString().slice(0, 7)
+}
+
+const monthLabel = (month) => (month
+  ? new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : 'N/A')
+
+function buildFallbackInsights({ summary, trend, states, incidents, regions, seasonality }) {
+  const topMonth = [...(seasonality?.points || [])].sort((a, b) => b.declaration_records - a.declaration_records)[0] || { name: 'N/A', declaration_records: 0 }
+  const seasonMonths = {
+    Winter: ['December', 'January', 'February'],
+    Spring: ['March', 'April', 'May'],
+    Summer: ['June', 'July', 'August'],
+    Fall: ['September', 'October', 'November'],
+  }
+  const monthCounts = Object.fromEntries((seasonality?.points || []).map((point) => [point.name, point.declaration_records]))
+  const seasonTotals = Object.entries(seasonMonths).map(([name, months]) => ({
+    name,
+    months,
+    declaration_records: months.reduce((total, month) => total + (monthCounts[month] || 0), 0),
+  }))
+  const topSeason = seasonTotals.sort((a, b) => b.declaration_records - a.declaration_records)[0] || { name: 'N/A', months: [], declaration_records: 0 }
+  const completeTrend = (trend?.points || []).filter((point) => Number(point.period) < new Date().getUTCFullYear())
+  const window = Math.min(10, Math.max(2, Math.floor(completeTrend.length / 2)))
+  const recent = completeTrend.slice(-window)
+  const prior = completeTrend.slice(-window * 2, -window)
+  const average = (points) => points.length ? points.reduce((total, point) => total + point.declaration_records, 0) / points.length : 0
+  const recentAverage = average(recent)
+  const priorAverage = average(prior)
+  const percentChange = priorAverage ? ((recentAverage - priorAverage) / priorAverage) * 100 : 0
+  const spikes = [...completeTrend]
+    .sort((a, b) => b.declaration_records - a.declaration_records)
+    .slice(0, 3)
+    .map((point) => ({
+      year: Number(point.period),
+      declaration_records: point.declaration_records,
+      top_incident_type: 'Live API detail',
+      top_incident_records: 0,
+      explanation: `${point.period} is one of the highest declaration-record years in the selected period.`,
+      limitation: 'The snapshot identifies the spike, but the live API provides the incident category contributing most to it.',
+    }))
+  const ratio = summary.unique_disaster_numbers ? summary.declaration_records / summary.unique_disaster_numbers : 0
+
+  return {
+    top_month: topMonth,
+    top_season: topSeason,
+    top_states: (states?.points || []).slice(0, 5),
+    top_incident_types: (incidents?.points || []).slice(0, 5),
+    top_regions: (regions?.points || []).slice(0, 5),
+    long_term_trend: {
+      direction: percentChange > 5 ? 'increasing' : percentChange < -5 ? 'decreasing' : 'relatively stable',
+      prior_average: priorAverage,
+      recent_average: recentAverage,
+      percent_change: percentChange,
+      interpretation: `Recent complete-year declaration records average ${Math.abs(percentChange).toFixed(1)}% ${percentChange >= 0 ? 'higher' : 'lower'} than the preceding comparison period.`,
+      limitation: 'Annual declaration records are administrative counts and do not directly measure disaster severity.',
+    },
+    historical_spikes: spikes,
+    records_vs_disasters: {
+      declaration_records: summary.declaration_records,
+      unique_disaster_numbers: summary.unique_disaster_numbers,
+      records_per_disaster: ratio,
+      interpretation: `There are about ${ratio.toFixed(2)} declaration records per distinct disaster number in the selected data.`,
+      limitation: 'One disaster can produce multiple records for separate designated areas, so the ratio is not a severity measure.',
+    },
+  }
+}
+
 function MetricCard({ label, value, note }) {
   return (
     <article className="metric-card">
@@ -90,7 +193,7 @@ function AnnualTrendChart({ points }) {
   )
 }
 
-function HorizontalBarChart({ points, compact = false }) {
+function HorizontalBarChart({ points, compact = false, labelFormatter = (name) => name }) {
   if (!points?.length) {
     return <EmptyChart message="Category data is unavailable." />
   }
@@ -101,7 +204,7 @@ function HorizontalBarChart({ points, compact = false }) {
       {points.map((point) => (
         <div className="bar-row" key={point.name}>
           <div className="bar-row-heading">
-            <span>{point.name}</span>
+            <span>{labelFormatter(point.name)}</span>
             <strong>{formatNumber.format(point.declaration_records)}</strong>
           </div>
           <div className="bar-track">
@@ -131,6 +234,174 @@ function SeasonalityChart({ points }) {
         </div>
       ))}
     </div>
+  )
+}
+
+function InsightLimitation({ children }) {
+  return (
+    <div className="insight-limitation">
+      <strong>Interpretation limit</strong>
+      <span>{children}</span>
+    </div>
+  )
+}
+
+function InsightExplorer({
+  mode,
+  onModeChange,
+  insights,
+  comparisonRegions,
+  onComparisonRegionChange,
+  availableRegions,
+  comparisonForecasts,
+  comparisonLoading,
+  forecastFloor,
+}) {
+  const renderRanked = (points, labelFormatter, limitation) => (
+    <div className="insight-ranked">
+      <HorizontalBarChart points={(points || []).slice(0, 5)} compact labelFormatter={labelFormatter} />
+      <InsightLimitation>{limitation}</InsightLimitation>
+    </div>
+  )
+
+  return (
+    <article className="insight-explorer">
+      <div className="insight-toolbar">
+        <div>
+          <span>Guided findings</span>
+          <h3>Insight Explorer</h3>
+          <p>Select a question and the panel will reorganize the same filtered dashboard data into an interpretation-ready result.</p>
+        </div>
+        <label>
+          <span>Explore a result</span>
+          <select value={mode} onChange={(event) => onModeChange(event.target.value)}>
+            {INSIGHT_OPTIONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div className="insight-stage">
+        {mode === 'seasonality' ? (
+          <div className="insight-highlight-grid">
+            <div className="insight-highlight">
+              <span>Top calendar month</span>
+              <strong>{insights.top_month.name}</strong>
+              <small>{formatNumber.format(insights.top_month.declaration_records)} declaration records</small>
+            </div>
+            <div className="insight-highlight">
+              <span>Top meteorological season</span>
+              <strong>{insights.top_season.name}</strong>
+              <small>{formatNumber.format(insights.top_season.declaration_records)} records · {insights.top_season.months.join(', ')}</small>
+            </div>
+            <InsightLimitation>
+              Month and season totals combine all selected years. They show historical concentration, not a guarantee that every year follows the same timing.
+            </InsightLimitation>
+          </div>
+        ) : null}
+
+        {mode === 'states'
+          ? renderRanked(insights.top_states, (name) => name, 'State rankings count administrative declaration rows. Larger or more widely designated disasters can create more rows without being more severe.')
+          : null}
+
+        {mode === 'incidents'
+          ? renderRanked(insights.top_incident_types, (name) => name, 'Incident classifications and reporting practices vary over time. Counts do not directly measure losses, fatalities, or event intensity.')
+          : null}
+
+        {mode === 'regions'
+          ? renderRanked(insights.top_regions, (name) => formatRegionLabel(name, true), 'FEMA regions differ in population, geography, hazard exposure, and number of jurisdictions, so raw totals are not population-adjusted risk rates.')
+          : null}
+
+        {mode === 'trend' ? (
+          <div className="trend-insight-layout">
+            <div className="trend-change-card">
+              <span>Recent vs. prior complete-year average</span>
+              <strong>{insights.long_term_trend.percent_change >= 0 ? '+' : ''}{insights.long_term_trend.percent_change.toFixed(1)}%</strong>
+              <small>{insights.long_term_trend.direction}</small>
+            </div>
+            <div className="trend-interpretation">
+              <p>{insights.long_term_trend.interpretation}</p>
+              <div className="comparison-mini-grid">
+                <div><span>Prior average</span><strong>{formatNumber.format(Math.round(insights.long_term_trend.prior_average))}</strong></div>
+                <div><span>Recent average</span><strong>{formatNumber.format(Math.round(insights.long_term_trend.recent_average))}</strong></div>
+              </div>
+              <InsightLimitation>{insights.long_term_trend.limitation}</InsightLimitation>
+            </div>
+          </div>
+        ) : null}
+
+        {mode === 'spikes' ? (
+          <div className="spike-grid">
+            {(insights.historical_spikes || []).map((spike) => (
+              <article key={spike.year}>
+                <span>Historical spike</span>
+                <strong>{spike.year}</strong>
+                <b>{formatNumber.format(spike.declaration_records)} records</b>
+                <p>{spike.explanation}</p>
+                <InsightLimitation>{spike.limitation}</InsightLimitation>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {mode === 'record-comparison' ? (
+          <div className="record-comparison-layout">
+            <div className="record-comparison-numbers">
+              <div><span>Declaration records</span><strong>{formatNumber.format(insights.records_vs_disasters.declaration_records)}</strong></div>
+              <div><span>Unique disaster numbers</span><strong>{formatNumber.format(insights.records_vs_disasters.unique_disaster_numbers)}</strong></div>
+              <div><span>Records per disaster number</span><strong>{insights.records_vs_disasters.records_per_disaster.toFixed(2)}</strong></div>
+            </div>
+            <div>
+              <p>{insights.records_vs_disasters.interpretation}</p>
+              <InsightLimitation>{insights.records_vs_disasters.limitation}</InsightLimitation>
+            </div>
+          </div>
+        ) : null}
+
+        {mode === 'forecast-comparison' ? (
+          <div className="forecast-comparison-panel">
+            <div className="comparison-region-controls">
+              {comparisonRegions.map((region, index) => (
+                <label key={`comparison-${index}`}>
+                  <span>Comparison region {index + 1}</span>
+                  <select value={region} onChange={(event) => onComparisonRegionChange(index, event.target.value)}>
+                    {availableRegions.map((option) => (
+                      <option
+                        value={option}
+                        key={option}
+                        disabled={comparisonRegions.some((selected, selectedIndex) => selectedIndex !== index && selected === option)}
+                      >
+                        {formatRegionLabel(option)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+            {comparisonLoading ? <div className="comparison-loading">Updating regional forecasts…</div> : null}
+            <div className="comparison-forecast-grid">
+              {comparisonForecasts.map((item) => {
+                const rows = (item.points || []).filter((point) => point.record_type === 'Forecast' && point.month >= forecastFloor)
+                const total = rows.reduce((sum, point) => sum + point.declaration_records, 0)
+                const peak = rows.length ? rows.reduce((best, point) => point.declaration_records > best.declaration_records ? point : best) : null
+                return (
+                  <article key={item.region}>
+                    <span>{formatRegionLabel(item.region, true)}</span>
+                    <strong>{formatNumber.format(total)}</strong>
+                    <small>forecast-period records</small>
+                    <div><b>Starts</b><em>{monthLabel(item.forecast_start || rows[0]?.month)}</em></div>
+                    <div><b>Peak</b><em>{peak ? `${monthLabel(peak.month)} · ${formatNumber.format(peak.declaration_records)}` : 'N/A'}</em></div>
+                    <p>{item.method}</p>
+                  </article>
+                )
+              })}
+            </div>
+            <InsightLimitation>
+              Regional forecasts estimate future administrative declaration-record volume. They do not predict a specific disaster, location, timing, severity, or financial loss.
+            </InsightLimitation>
+          </div>
+        ) : null}
+      </div>
+    </article>
   )
 }
 
@@ -279,6 +550,11 @@ function App() {
   const [states, setStates] = useState(SNAPSHOT.states)
   const [seasonality, setSeasonality] = useState(SNAPSHOT.seasonality)
   const [forecast, setForecast] = useState(SNAPSHOT.forecasts['Region 4'])
+  const [insights, setInsights] = useState(null)
+  const [insightMode, setInsightMode] = useState('seasonality')
+  const [comparisonRegions, setComparisonRegions] = useState(['Region 4', 'Region 6', 'Region 9'])
+  const [comparisonForecasts, setComparisonForecasts] = useState([])
+  const [comparisonLoading, setComparisonLoading] = useState(false)
   const [filters, setFilters] = useState({
     startYear: SNAPSHOT.metadata.years[0],
     endYear: SNAPSHOT.metadata.years[SNAPSHOT.metadata.years.length - 1],
@@ -304,6 +580,8 @@ function App() {
           region: 'All Regions',
         })
         setForecastRegion(payload.regions.includes('Region 4') ? 'Region 4' : payload.regions[0])
+        const preferredComparison = ['Region 4', 'Region 6', 'Region 9'].filter((region) => payload.regions.includes(region))
+        setComparisonRegions([...preferredComparison, ...payload.regions.filter((region) => !preferredComparison.includes(region))].slice(0, 3))
       } catch (error) {
         if (error.name !== 'AbortError') setApiState('snapshot')
       }
@@ -343,6 +621,8 @@ function App() {
         setRegions(regionData)
         setStates(stateData)
         setSeasonality(seasonalityData)
+        const insightResponse = await fetch(`${API_BASE_URL}/insights?${regional}`, { signal: controller.signal })
+        setInsights(insightResponse.ok ? await insightResponse.json() : null)
         setApiState('connected')
       } catch (error) {
         if (error.name !== 'AbortError') {
@@ -353,6 +633,7 @@ function App() {
           setRegions(SNAPSHOT.regions)
           setStates(SNAPSHOT.states)
           setSeasonality(SNAPSHOT.seasonality)
+          setInsights(null)
         }
       } finally {
         setAnalyticsLoading(false)
@@ -391,10 +672,51 @@ function App() {
     return () => controller.abort()
   }, [forecastRegion, forecastHorizon])
 
+  useEffect(() => {
+    if (insightMode !== 'forecast-comparison' || comparisonRegions.length < 3) return undefined
+    const controller = new AbortController()
+    async function loadComparisonForecasts() {
+      setComparisonLoading(true)
+      try {
+        const responses = await Promise.all(comparisonRegions.map((region) => fetch(
+          `${API_BASE_URL}/forecast?region=${encodeURIComponent(region)}&horizon=${forecastHorizon}`,
+          { signal: controller.signal },
+        )))
+        if (responses.some((response) => !response.ok)) throw new Error('Forecast comparison request failed.')
+        setComparisonForecasts(await Promise.all(responses.map((response) => response.json())))
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setComparisonForecasts(comparisonRegions.map((region) => ({
+            ...(SNAPSHOT.forecasts[region] || SNAPSHOT.forecasts['Region 4']),
+            region,
+            horizon: forecastHorizon,
+          })))
+        }
+      } finally {
+        setComparisonLoading(false)
+      }
+    }
+    loadComparisonForecasts()
+    return () => controller.abort()
+  }, [insightMode, comparisonRegions, forecastHorizon])
+
+  const forecastFloor = useMemo(nextForecastMonthKey, [])
+  const forecastDisplayPoints = useMemo(() => [
+    ...(forecast?.points?.filter((point) => point.record_type === 'Historical') || []),
+    ...(forecast?.points?.filter((point) => point.record_type === 'Forecast' && point.month >= forecastFloor).slice(0, forecastHorizon) || []),
+  ], [forecast, forecastFloor, forecastHorizon])
   const forecastRows = useMemo(
-    () => forecast?.points?.filter((point) => point.record_type === 'Forecast').slice(0, forecastHorizon) || [],
-    [forecast, forecastHorizon],
+    () => forecastDisplayPoints.filter((point) => point.record_type === 'Forecast'),
+    [forecastDisplayPoints],
   )
+  const activeInsights = useMemo(() => insights || buildFallbackInsights({
+    summary,
+    trend,
+    states,
+    incidents,
+    regions,
+    seasonality,
+  }), [insights, summary, trend, states, incidents, regions, seasonality])
   const forecastTotal = forecastRows.reduce((total, row) => total + row.declaration_records, 0)
   const forecastAverage = forecastRows.length ? Math.round(forecastTotal / forecastRows.length) : 0
   const forecastPeak = forecastRows.length
@@ -410,6 +732,10 @@ function App() {
   const updateEndYear = (value) => {
     const next = Number(value)
     setFilters((current) => ({ ...current, endYear: next, startYear: Math.min(current.startYear, next) }))
+  }
+
+  const updateComparisonRegion = (index, value) => {
+    setComparisonRegions((current) => current.map((region, position) => position === index ? value : region))
   }
 
   const downloadForecast = () => {
@@ -535,7 +861,7 @@ function App() {
               <span>FEMA region</span>
               <select value={filters.region} onChange={(event) => setFilters((current) => ({ ...current, region: event.target.value }))} disabled={filterDisabled}>
                 <option>All Regions</option>
-                {metadata.regions.map((region) => <option value={region} key={region}>{region}</option>)}
+                {metadata.regions.map((region) => <option value={region} key={region}>{formatRegionLabel(region)}</option>)}
               </select>
             </label>
             <button
@@ -562,6 +888,18 @@ function App() {
             <MetricCard label="Peak Declaration Year" value={summary.peak_year} />
           </div>
 
+          <InsightExplorer
+            mode={insightMode}
+            onModeChange={setInsightMode}
+            insights={activeInsights}
+            comparisonRegions={comparisonRegions}
+            onComparisonRegionChange={updateComparisonRegion}
+            availableRegions={metadata.regions}
+            comparisonForecasts={comparisonForecasts}
+            comparisonLoading={comparisonLoading}
+            forecastFloor={forecastFloor}
+          />
+
           <div className="chart-grid">
             <article className="chart-card chart-wide">
               <div className="chart-heading">
@@ -584,7 +922,7 @@ function App() {
                 <div><span>Regional comparison</span><h3>Declaration records by FEMA region</h3></div>
                 <small>All regions</small>
               </div>
-              <HorizontalBarChart points={regions.points} compact />
+              <HorizontalBarChart points={regions.points} compact labelFormatter={(name) => formatRegionLabel(name, true)} />
             </article>
 
             <article className="chart-card">
@@ -611,14 +949,14 @@ function App() {
               <p className="section-label">Regional forecasting</p>
               <h2>Estimate future monthly declaration-record volume.</h2>
             </div>
-            <p>The estimate combines recurring monthly patterns with recent regional history. It forecasts administrative record volume, not individual disaster events.</p>
+            <p>The backtested model compares a seasonal-trend regression with a seasonal-naive benchmark, selects the better holdout performer, and begins with the next full calendar month.</p>
           </div>
 
           <div className="forecast-controls">
             <label>
               <span>Forecast region</span>
               <select value={forecastRegion} onChange={(event) => setForecastRegion(event.target.value)}>
-                {metadata.regions.map((region) => <option value={region} key={region}>{region}</option>)}
+                {metadata.regions.map((region) => <option value={region} key={region}>{formatRegionLabel(region)}</option>)}
               </select>
             </label>
             <label>
@@ -633,20 +971,25 @@ function App() {
           <div className="forecast-layout">
             <article className="chart-card forecast-chart-card">
               <div className="chart-heading">
-                <div><span>{forecast.region}</span><h3>Historical monthly volume and forecast</h3></div>
+                <div><span>{formatRegionLabel(forecast.region, true)}</span><h3>Historical monthly volume and future forecast</h3></div>
                 <small>{forecastHorizon}-month outlook</small>
               </div>
-              <ForecastChart points={forecast.points} />
+              <ForecastChart points={forecastDisplayPoints} />
             </article>
             <aside className="forecast-summary">
               <div><span>Forecast-period records</span><strong>{formatNumber.format(forecastTotal)}</strong></div>
               <div><span>Average forecast month</span><strong>{formatNumber.format(forecastAverage)}</strong></div>
               <div>
                 <span>Highest forecast month</span>
-                <strong>{forecastPeak ? new Date(`${forecastPeak.month}-01T00:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}</strong>
+                <strong>{forecastPeak ? monthLabel(forecastPeak.month) : 'N/A'}</strong>
                 <small>{forecastPeak ? `${formatNumber.format(forecastPeak.declaration_records)} records` : ''}</small>
               </div>
-              <p>{forecast.method}</p>
+              <div>
+                <span>Forecast begins</span>
+                <strong>{monthLabel(forecast.forecast_start || forecastRows[0]?.month)}</strong>
+                <small>{forecast.training_through ? `As of ${forecast.as_of_date || 'today'} · trained through ${monthLabel(forecast.training_through)}` : 'Future months only'}</small>
+              </div>
+              <p>{forecast.method}{forecast.validation_mae !== null && forecast.validation_mae !== undefined ? ` · Validation MAE ${forecast.validation_mae.toFixed(1)} records` : ''}</p>
             </aside>
           </div>
 
@@ -666,7 +1009,7 @@ function App() {
             </table>
           </div>
           <div className="forecast-warning">
-            Forecasts can be affected by irregular declaration surges, limited recent observations, policy changes, and conditions that do not follow historical patterns. They must not be interpreted as predictions of disaster timing, location, severity, or occurrence.
+            Forecast rows begin with the next full calendar month, so expired forecast months are never displayed. The estimates can still be affected by irregular declaration surges, reporting delays, policy changes, and patterns that do not continue. They are not predictions of disaster timing, location, severity, or occurrence.
           </div>
         </section>
 

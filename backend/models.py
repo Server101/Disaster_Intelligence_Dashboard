@@ -52,6 +52,49 @@ class CategoryResponse(BaseModel):
     points: list[CategoryPoint]
 
 
+class SeasonInsight(BaseModel):
+    name: str
+    declaration_records: int
+    months: list[str]
+
+
+class TrendInsight(BaseModel):
+    direction: str
+    prior_average: float
+    recent_average: float
+    percent_change: float
+    interpretation: str
+    limitation: str
+
+
+class SpikeInsight(BaseModel):
+    year: int
+    declaration_records: int
+    top_incident_type: str
+    top_incident_records: int
+    explanation: str
+    limitation: str
+
+
+class RecordComparisonInsight(BaseModel):
+    declaration_records: int
+    unique_disaster_numbers: int
+    records_per_disaster: float
+    interpretation: str
+    limitation: str
+
+
+class InsightsResponse(BaseModel):
+    top_month: CategoryPoint
+    top_season: SeasonInsight
+    top_states: list[CategoryPoint]
+    top_incident_types: list[CategoryPoint]
+    top_regions: list[CategoryPoint]
+    long_term_trend: TrendInsight
+    historical_spikes: list[SpikeInsight]
+    records_vs_disasters: RecordComparisonInsight
+
+
 class ForecastPoint(BaseModel):
     month: str
     record_type: str
@@ -65,4 +108,8 @@ class ForecastResponse(BaseModel):
     horizon: int = Field(ge=1, le=24)
     method: str
     generated_at: str
+    as_of_date: str | None = None
+    training_through: str | None = None
+    forecast_start: str | None = None
+    validation_mae: float | None = None
     points: list[ForecastPoint]

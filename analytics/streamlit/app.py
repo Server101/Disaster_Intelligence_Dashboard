@@ -13,7 +13,25 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from backend.fema_data_service import apply_filters, load_fema_data, sort_region_labels
-from backend.forecast_service import FORECAST_METHOD, generate_region_forecast
+from backend.forecast_service import generate_region_forecast
+
+REGION_DETAILS = {
+    "Region 1": "New England (CT, ME, MA, NH, RI, VT)",
+    "Region 2": "Northeast & Caribbean (NJ, NY, Puerto Rico, U.S. Virgin Islands)",
+    "Region 3": "Mid-Atlantic (DE, DC, MD, PA, VA, WV)",
+    "Region 4": "Southeast (AL, FL, GA, KY, MS, NC, SC, TN)",
+    "Region 5": "Great Lakes (IL, IN, MI, MN, OH, WI)",
+    "Region 6": "South Central (AR, LA, NM, OK, TX)",
+    "Region 7": "Central Plains (IA, KS, MO, NE)",
+    "Region 8": "Mountain (CO, MT, ND, SD, UT, WY)",
+    "Region 9": "Pacific Southwest & Islands (AZ, CA, HI, NV and Pacific territories)",
+    "Region 10": "Pacific Northwest (AK, ID, OR, WA)",
+}
+
+
+def format_region_label(region: str) -> str:
+    detail = REGION_DETAILS.get(region)
+    return f"{region} — {detail}" if detail else region
 
 st.set_page_config(
     page_title="Disaster Intelligence",
@@ -97,6 +115,10 @@ def load_region_forecast(
             api_frame["region"] = payload["region"]
             api_frame["method"] = payload["method"]
             api_frame["generatedAt"] = payload["generated_at"]
+            api_frame["asOfDate"] = payload.get("as_of_date")
+            api_frame["trainingThrough"] = payload.get("training_through")
+            api_frame["forecastStart"] = payload.get("forecast_start")
+            api_frame["validationMae"] = payload.get("validation_mae")
             return api_frame, "AWS backend API"
         except Exception:
             pass
@@ -160,7 +182,7 @@ declaration_type_options = sorted(
 )
 
 selected_states = st.sidebar.multiselect("State or territory", state_options)
-selected_regions = st.sidebar.multiselect("FEMA region", region_options)
+selected_regions = st.sidebar.multiselect("FEMA region", region_options, format_func=format_region_label)
 selected_incidents = st.sidebar.multiselect("Incident type", incident_options)
 selected_declaration_types = st.sidebar.multiselect(
     "Declaration type",
@@ -421,6 +443,7 @@ with forecast_tab:
         forecast_regions,
         index=default_region_index,
         key="forecast_region",
+        format_func=format_region_label,
     )
     forecast_horizon = forecast_controls[1].slider(
         "Forecast horizon",
@@ -444,12 +467,21 @@ with forecast_tab:
         historical_data = forecast_data.loc[
             forecast_data["recordType"] == "Historical"
         ].copy()
+        forecast_floor = (
+            pd.Timestamp.now(tz="UTC")
+            .tz_localize(None)
+            .to_period("M")
+            .to_timestamp()
+            + pd.offsets.MonthBegin(1)
+        )
         projected_data = forecast_data.loc[
-            forecast_data["recordType"] == "Forecast"
-        ].copy()
+            (forecast_data["recordType"] == "Forecast")
+            & (forecast_data["month"] >= forecast_floor)
+        ].head(forecast_horizon).copy()
+        chart_data = pd.concat([historical_data, projected_data], ignore_index=True)
 
         forecast_figure = px.line(
-            forecast_data,
+            chart_data,
             x="month",
             y="declarationRecords",
             color="recordType",
@@ -459,7 +491,7 @@ with forecast_tab:
                 "declarationRecords": "Declaration Records",
                 "recordType": "Series",
             },
-            title=f"{forecast_region}: Historical and Forecast Monthly Volume",
+            title=f"{format_region_label(forecast_region)}: Historical and Future Monthly Volume",
         )
         forecast_figure.update_traces(
             line={"dash": "dash"},
@@ -516,7 +548,7 @@ with forecast_tab:
             },
         )
 
-        forecast_download = forecast_data.copy()
+        forecast_download = chart_data.copy()
         forecast_download["month"] = forecast_download["month"].dt.strftime("%Y-%m-%d")
         st.download_button(
             "Download Regional Forecast as CSV",
@@ -530,9 +562,26 @@ with forecast_tab:
         )
 
         st.caption(f"Forecast source: {forecast_source}")
+        method_value = str(forecast_data["method"].dropna().iloc[0])
+        forecast_start_value = (
+            str(forecast_data["forecastStart"].dropna().iloc[0])
+            if "forecastStart" in forecast_data.columns
+            and forecast_data["forecastStart"].notna().any()
+            else projected_data["month"].min().strftime("%Y-%m")
+            if not projected_data.empty
+            else "N/A"
+        )
+        training_through_value = (
+            str(forecast_data["trainingThrough"].dropna().iloc[0])
+            if "trainingThrough" in forecast_data.columns
+            and forecast_data["trainingThrough"].notna().any()
+            else historical_data["month"].max().strftime("%Y-%m")
+            if not historical_data.empty
+            else "N/A"
+        )
         st.info(
-            f"Method: {FORECAST_METHOD}. The estimate uses recent monthly history, "
-            "same-month seasonal patterns, and a limited recent-level adjustment."
+            f"Method: {method_value}. Training data runs through {training_through_value}, "
+            f"and the first forecast month is {forecast_start_value}."
         )
         st.warning(
             "Forecast values estimate administrative declaration-record volume. "
@@ -593,7 +642,7 @@ with st.expander("Methodology and limitations"):
         - Dashboard totals count declaration records unless a metric explicitly says unique disaster numbers.
         - Declaration records are administrative records and do not directly measure disaster severity or total economic impact.
         - A public deployment first attempts to load the full live FEMA CSV and falls back to the repository sample only when the live source is unavailable.
-        - Regional forecasts estimate monthly declaration-record volume with a seasonal moving-average method and do not predict individual disasters.
+        - Regional forecasts use backtesting to select between a seasonal-trend regression and a seasonal-naive benchmark. Forecast rows begin with the next full calendar month and do not predict individual disasters.
         """
     )
 

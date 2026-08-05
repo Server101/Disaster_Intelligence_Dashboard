@@ -16,8 +16,13 @@ from backend.models import (
     ForecastPoint,
     ForecastResponse,
     HealthResponse,
+    InsightsResponse,
     MetadataResponse,
+    RecordComparisonInsight,
+    SeasonInsight,
+    SpikeInsight,
     SummaryResponse,
+    TrendInsight,
     TrendPoint,
     TrendResponse,
 )
@@ -331,6 +336,169 @@ def seasonality(
     return CategoryResponse(points=points)
 
 
+@app.get("/insights", response_model=InsightsResponse)
+@app.get("/api/insights", response_model=InsightsResponse, include_in_schema=False)
+def insights(
+    start_date: date | None = None,
+    end_date: date | None = None,
+    region: str | None = None,
+):
+    result = _load_data()
+    frame = _filtered_data(
+        result.frame,
+        start_date,
+        end_date,
+        None,
+        region,
+        None,
+        None,
+    )
+    if frame.empty:
+        raise HTTPException(status_code=404, detail="No declaration records match the filters.")
+
+    month_counts = frame["declarationMonthName"].value_counts()
+    top_month_name = str(month_counts.idxmax())
+    top_month = CategoryPoint(
+        name=top_month_name,
+        declaration_records=int(month_counts.loc[top_month_name]),
+    )
+
+    seasons = {
+        "Winter": ["December", "January", "February"],
+        "Spring": ["March", "April", "May"],
+        "Summer": ["June", "July", "August"],
+        "Fall": ["September", "October", "November"],
+    }
+    season_counts = {
+        season: int(month_counts.reindex(months, fill_value=0).sum())
+        for season, months in seasons.items()
+    }
+    top_season_name = max(season_counts, key=season_counts.get)
+    top_season = SeasonInsight(
+        name=top_season_name,
+        declaration_records=season_counts[top_season_name],
+        months=seasons[top_season_name],
+    )
+
+    def top_points(column: str, limit: int = 5) -> list[CategoryPoint]:
+        counts = frame[column].value_counts().head(limit)
+        return [
+            CategoryPoint(name=str(name), declaration_records=int(count))
+            for name, count in counts.items()
+            if str(name) != "Not Reported"
+        ]
+
+    yearly = (
+        frame.dropna(subset=["declarationYear"])
+        .groupby("declarationYear")
+        .size()
+        .sort_index()
+    )
+    current_year = datetime.now(timezone.utc).year
+    complete_yearly = yearly.loc[yearly.index < current_year]
+    if len(complete_yearly) < 4:
+        complete_yearly = yearly
+
+    window = min(10, max(2, len(complete_yearly) // 2))
+    recent_values = complete_yearly.tail(window)
+    prior_values = complete_yearly.iloc[-2 * window : -window]
+    if prior_values.empty:
+        split = max(1, len(complete_yearly) // 2)
+        prior_values = complete_yearly.iloc[:split]
+        recent_values = complete_yearly.iloc[split:]
+
+    prior_average = float(prior_values.mean()) if not prior_values.empty else 0.0
+    recent_average = float(recent_values.mean()) if not recent_values.empty else 0.0
+    percent_change = (
+        ((recent_average - prior_average) / prior_average) * 100.0
+        if prior_average > 0
+        else 0.0
+    )
+    if percent_change > 5:
+        direction = "increasing"
+    elif percent_change < -5:
+        direction = "decreasing"
+    else:
+        direction = "relatively stable"
+    interpretation = (
+        f"The average annual declaration-record total is {abs(percent_change):.1f}% "
+        f"{'higher' if percent_change >= 0 else 'lower'} in the most recent "
+        f"{len(recent_values)} complete years than in the preceding comparison period. "
+        f"This indicates an {direction} long-term administrative record pattern." if direction == "increasing" else f"This indicates a {direction} long-term administrative record pattern."
+    )
+    trend_insight = TrendInsight(
+        direction=direction,
+        prior_average=round(prior_average, 1),
+        recent_average=round(recent_average, 1),
+        percent_change=round(percent_change, 1),
+        interpretation=interpretation,
+        limitation=(
+            "Annual declaration-record totals are affected by event scale, designated-area "
+            "reporting, policy, and incomplete recent years; they are not a severity index."
+        ),
+    )
+
+    spike_years = complete_yearly.nlargest(3)
+    spike_insights: list[SpikeInsight] = []
+    for year_value, record_count in spike_years.items():
+        year = int(year_value)
+        year_frame = frame.loc[frame["declarationYear"] == year]
+        incident_counts = year_frame["incidentType"].value_counts()
+        top_incident = str(incident_counts.idxmax())
+        top_incident_records = int(incident_counts.loc[top_incident])
+        share = (top_incident_records / int(record_count)) * 100.0
+        spike_insights.append(
+            SpikeInsight(
+                year=year,
+                declaration_records=int(record_count),
+                top_incident_type=top_incident,
+                top_incident_records=top_incident_records,
+                explanation=(
+                    f"{year} contains {int(record_count):,} declaration records. "
+                    f"{top_incident} is the leading category with "
+                    f"{top_incident_records:,} records ({share:.1f}% of that year), "
+                    "showing which incident classification contributes most to the spike."
+                ),
+                limitation=(
+                    "This identifies an association inside the FEMA records, not a single "
+                    "causal event. One disaster can create multiple designated-area rows."
+                ),
+            )
+        )
+
+    declaration_records = len(frame)
+    unique_disasters = int(frame["disasterNumber"].nunique(dropna=True))
+    records_per_disaster = (
+        declaration_records / unique_disasters if unique_disasters else 0.0
+    )
+    records_comparison = RecordComparisonInsight(
+        declaration_records=declaration_records,
+        unique_disaster_numbers=unique_disasters,
+        records_per_disaster=round(records_per_disaster, 2),
+        interpretation=(
+            f"The selected data contains {declaration_records:,} administrative records "
+            f"for {unique_disasters:,} distinct disaster numbers, or about "
+            f"{records_per_disaster:.2f} records per disaster number. The larger record "
+            "count reflects separate designated areas and declaration details."
+        ),
+        limitation=(
+            "The ratio varies by disaster scope and reporting structure. It should not be "
+            "used to compare disaster severity or economic impact."
+        ),
+    )
+
+    return InsightsResponse(
+        top_month=top_month,
+        top_season=top_season,
+        top_states=top_points("state"),
+        top_incident_types=top_points("incidentType"),
+        top_regions=top_points("femaRegion"),
+        long_term_trend=trend_insight,
+        historical_spikes=spike_insights,
+        records_vs_disasters=records_comparison,
+    )
+
+
 @app.get("/forecast", response_model=ForecastResponse)
 @app.get("/api/forecast", response_model=ForecastResponse, include_in_schema=False)
 def forecast(
@@ -353,6 +521,29 @@ def forecast(
 
     method = str(forecast_frame["method"].dropna().iloc[0])
     generated_at = str(forecast_frame["generatedAt"].dropna().iloc[0])
+    as_of_date = (
+        str(forecast_frame["asOfDate"].dropna().iloc[0])
+        if "asOfDate" in forecast_frame.columns and forecast_frame["asOfDate"].notna().any()
+        else None
+    )
+    training_through = (
+        str(forecast_frame["trainingThrough"].dropna().iloc[0])
+        if "trainingThrough" in forecast_frame.columns
+        and forecast_frame["trainingThrough"].notna().any()
+        else None
+    )
+    forecast_start = (
+        str(forecast_frame["forecastStart"].dropna().iloc[0])
+        if "forecastStart" in forecast_frame.columns
+        and forecast_frame["forecastStart"].notna().any()
+        else None
+    )
+    validation_mae = (
+        float(forecast_frame["validationMae"].dropna().iloc[0])
+        if "validationMae" in forecast_frame.columns
+        and forecast_frame["validationMae"].notna().any()
+        else None
+    )
     points = []
     for row in forecast_frame.itertuples(index=False):
         points.append(
@@ -374,5 +565,9 @@ def forecast(
         horizon=horizon,
         method=method,
         generated_at=generated_at,
+        as_of_date=as_of_date,
+        training_through=training_through,
+        forecast_start=forecast_start,
+        validation_mae=validation_mae,
         points=points,
     )
