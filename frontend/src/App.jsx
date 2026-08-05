@@ -5,10 +5,10 @@ import './App.css'
 const STREAMLIT_URL = (import.meta.env.VITE_STREAMLIT_URL || 'https://disaster-intelligence-dashboard.streamlit.app').replace(/\/+$/, '')
 const STREAMLIT_EMBED_URL = `${STREAMLIT_URL}/?embed=true&embed_options=dark_theme`
 const STREAMLIT_VIEWER = {
-  title: 'Live Streamlit Analytics',
+  title: 'Search FEMA Declarations by State in Streamlit',
   url: STREAMLIT_EMBED_URL,
   externalUrl: `${STREAMLIT_URL}/`,
-  note: 'Streamlit iframe embedding works only for public Community Cloud apps. If this view does not load, open it separately and confirm the app sharing setting is public.',
+  note: 'Use the Streamlit state and territory filters to explore declaration records, incident types, trends, regional patterns, and downloadable data. If the embedded view does not load, open it separately.',
 }
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 const TABLEAU_URL = import.meta.env.VITE_TABLEAU_URL || ''
@@ -44,8 +44,8 @@ const formatRegionLabel = (region, compact = false) => {
   const detail = REGION_DETAILS[region]
   if (!detail) return region
   return compact
-    ? `${region} — ${detail.name}`
-    : `${region} — ${detail.name} (${detail.areas})`
+    ? `FEMA ${region} — ${detail.name}`
+    : `FEMA ${region} — ${detail.name} (${detail.areas})`
 }
 
 const nextForecastMonthKey = () => {
@@ -700,7 +700,7 @@ function App() {
     return () => controller.abort()
   }, [insightMode, comparisonRegions, forecastHorizon])
 
-  const forecastFloor = useMemo(nextForecastMonthKey, [])
+  const forecastFloor = useMemo(() => nextForecastMonthKey(), [])
   const forecastDisplayPoints = useMemo(() => [
     ...(forecast?.points?.filter((point) => point.record_type === 'Historical') || []),
     ...(forecast?.points?.filter((point) => point.record_type === 'Forecast' && point.month >= forecastFloor).slice(0, forecastHorizon) || []),
@@ -779,7 +779,7 @@ function App() {
           type="button"
           onClick={() => setViewer(STREAMLIT_VIEWER)}
         >
-          Open Streamlit
+          Search by State
         </button>
       </header>
 
@@ -787,7 +787,7 @@ function App() {
         <section className="hero-section">
           <div className="hero-copy">
             <p className="eyebrow">OpenFEMA · Python · FastAPI · AWS · Tableau</p>
-            <h1>FEMA declaration data, analytics, and forecasting in one public project.</h1>
+            <h1>Disaster Intelligence Dashboard</h1>
             <p className="hero-summary">
               Explore historical declaration records across time, incident type, state, and FEMA region. The website includes its own analytics dashboard and regional forecast, with Streamlit and Tableau available in embedded popout views.
             </p>
@@ -798,14 +798,14 @@ function App() {
                 type="button"
                 onClick={() => setViewer(STREAMLIT_VIEWER)}
               >
-                View Streamlit Popout
+                Search by State in Streamlit
               </button>
               <button
                 className="secondary-button"
                 type="button"
-                onClick={() => setViewer({ title: 'Tableau Disaster Dashboard', url: TABLEAU_URL })}
+                onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}
               >
-                View Tableau Popout
+                View Tableau Map Popout
               </button>
             </div>
             <div className={`api-status ${apiState}`}>
@@ -858,7 +858,7 @@ function App() {
               </select>
             </label>
             <label>
-              <span>FEMA region</span>
+              <span>FEMA region and covered areas</span>
               <select value={filters.region} onChange={(event) => setFilters((current) => ({ ...current, region: event.target.value }))} disabled={filterDisabled}>
                 <option>All Regions</option>
                 {metadata.regions.map((region) => <option value={region} key={region}>{formatRegionLabel(region)}</option>)}
@@ -954,7 +954,7 @@ function App() {
 
           <div className="forecast-controls">
             <label>
-              <span>Forecast region</span>
+              <span>Forecast region and covered areas</span>
               <select value={forecastRegion} onChange={(event) => setForecastRegion(event.target.value)}>
                 {metadata.regions.map((region) => <option value={region} key={region}>{formatRegionLabel(region)}</option>)}
               </select>
@@ -1016,10 +1016,10 @@ function App() {
         <section className="architecture-section" id="architecture">
           <div className="section-heading">
             <div>
-              <p className="section-label">AWS-supported architecture</p>
-              <h2>A complete path from OpenFEMA data to public analytics.</h2>
+              <p className="section-label">AWS-supported architecture and API documentation</p>
+              <h2>How OpenFEMA data reaches the public dashboard and API.</h2>
             </div>
-            <p>The project uses the public CloudFront address assigned by AWS, so a custom domain is not required.</p>
+            <p>The architecture flow appears above the live FastAPI documentation so users can understand how each request moves through the AWS environment.</p>
           </div>
           <div className="architecture-flow">
             {[
@@ -1037,34 +1037,36 @@ function App() {
               </div>
             ))}
           </div>
+          <div className="dashboard-grid api-documentation-grid">
+            <article>
+              <span className={`dashboard-tag ${apiState === 'connected' ? 'live' : 'development'}`}>{apiState === 'connected' ? 'Connected' : 'AWS-ready'}</span>
+              <h3>FastAPI Documentation and Data Service</h3>
+              <p>Review the live health, metadata, summary, insight, trend, region, state, incident-type, seasonality, and forecast endpoints that connect the public website to the processed FEMA data stored in Amazon S3.</p>
+              <a href={`${API_BASE_URL}/docs`} target="_blank" rel="noreferrer">Open API Documentation</a>
+            </article>
+          </div>
         </section>
 
         <section className="dashboard-section" id="dashboards">
           <div className="section-heading">
             <div>
               <p className="section-label">Embedded project dashboards</p>
-              <h2>Open Streamlit and Tableau without leaving the website.</h2>
+              <h2>Search FEMA declarations by state in Streamlit and explore the disaster map in Tableau.</h2>
             </div>
-            <p>Each dashboard launches in a large in-page popout. A separate-window link remains available when a service prevents iframe embedding.</p>
+            <p>Streamlit provides detailed state and territory filtering, while Tableau will provide an interactive geographic map. Both tools open in large in-page popouts with separate-window options when needed.</p>
           </div>
-          <div className="dashboard-grid">
+          <div className="dashboard-grid dashboard-grid-two">
             <article>
               <span className="dashboard-tag live">Live</span>
-              <h3>Streamlit Analytics</h3>
-              <p>Detailed filters, KPI cards, annual and monthly trends, seasonality, regional comparisons, data tables, forecasting, and CSV downloads.</p>
-              <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Open Streamlit Popout</button>
+              <h3>State Search in Streamlit</h3>
+              <p>Select a state or territory to review declaration totals, incident types, annual and monthly trends, seasonality, regional comparisons, detailed records, forecasts, and CSV downloads.</p>
+              <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Open State Search Popout</button>
             </article>
             <article>
               <span className={`dashboard-tag ${TABLEAU_URL ? 'live' : 'development'}`}>{TABLEAU_URL ? 'Published' : 'In development'}</span>
-              <h3>Tableau Dashboard</h3>
-              <p>State map, annual trend, seasonality heatmap, regional comparison, hotspot ranking, incident analysis, filters, and presentation-ready KPIs.</p>
-              <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Dashboard', url: TABLEAU_URL })}>Open Tableau Popout</button>
-            </article>
-            <article>
-              <span className={`dashboard-tag ${apiState === 'connected' ? 'live' : 'development'}`}>{apiState === 'connected' ? 'Connected' : 'AWS-ready'}</span>
-              <h3>FastAPI Data Service</h3>
-              <p>Health, metadata, summary, trend, region, state, incident-type, seasonality, and forecast endpoints prepared for EC2 and S3.</p>
-              <a href={`${API_BASE_URL}/docs`} target="_blank" rel="noreferrer">Open API Documentation</a>
+              <h3>Tableau Disaster Map</h3>
+              <p>Explore an interactive state-level disaster map with geographic hotspots, regional comparisons, incident patterns, filters, and presentation-ready KPIs.</p>
+              <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}>View Map Popout via Tableau</button>
             </article>
           </div>
         </section>
@@ -1089,8 +1091,8 @@ function App() {
           <p>Data source: FEMA OpenFEMA Disaster Declarations Summaries v2.</p>
         </div>
         <div className="footer-links">
-          <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit</button>
-          <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Dashboard', url: TABLEAU_URL })}>Tableau</button>
+          <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit State Search</button>
+          <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}>Tableau Map</button>
           {GITHUB_URL ? <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> : <span>Private GitHub repository</span>}
           <a href="#top">Back to top</a>
         </div>
