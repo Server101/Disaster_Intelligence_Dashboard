@@ -11,7 +11,18 @@ const STREAMLIT_VIEWER = {
   note: 'Use the Streamlit state and territory filters to explore declaration records, incident types, trends, regional patterns, and downloadable data. If the embedded view does not load, open it separately.',
 }
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
-const TABLEAU_URL = import.meta.env.VITE_TABLEAU_URL || ''
+const TABLEAU_VIEW_URL = (
+  import.meta.env.VITE_TABLEAU_URL
+  || 'https://public.tableau.com/views/DisasterIntelligenceDashboard/TableauDisasterHeatMap'
+).split('?')[0].replace(/\/+$/, '')
+const TABLEAU_EMBED_URL = `${TABLEAU_VIEW_URL}?:showVizHome=no&:embed=yes&:toolbar=yes&:tabs=no`
+const TABLEAU_SHARE_URL = `${TABLEAU_VIEW_URL}?:language=en-US&:display_count=n&:origin=viz_share_link`
+const TABLEAU_VIEWER = {
+  title: 'Tableau Disaster Heat Map',
+  url: TABLEAU_EMBED_URL,
+  externalUrl: TABLEAU_SHARE_URL,
+  note: 'Hover over a state for detailed statistics, select a state to keep it highlighted, or use the region and incident filters to update the map.',
+}
 const GITHUB_URL = import.meta.env.VITE_GITHUB_URL || ''
 const formatNumber = new Intl.NumberFormat('en-US')
 const SNAPSHOT = dashboardSnapshot
@@ -496,6 +507,47 @@ function ForecastChart({ points }) {
   )
 }
 
+function TableauHeatMapSection({ onOpen }) {
+  return (
+    <section className="tableau-section" id="heat-map">
+      <div className="section-heading tableau-heading">
+        <div>
+          <p className="section-label">Interactive geographic analysis</p>
+          <h2>Explore the Tableau Disaster Heat Map.</h2>
+        </div>
+        <p>Hover over a state to view its statistics, select a state to keep it highlighted, and use the year, incident-type, or region controls to update the entire map.</p>
+      </div>
+
+      <div className="tableau-embed-shell">
+        <div className="tableau-embed-toolbar">
+          <div>
+            <span>Live interactive worksheet</span>
+            <strong>Tableau Disaster Heat Map</strong>
+          </div>
+          <div className="tableau-embed-actions">
+            <button type="button" onClick={onOpen}>Open larger popout</button>
+            <a href={TABLEAU_SHARE_URL} target="_blank" rel="noreferrer">Open separately</a>
+          </div>
+        </div>
+
+        <div className="tableau-embed-frame">
+          <tableau-viz
+            id="tableau-disaster-heat-map"
+            src={TABLEAU_VIEW_URL}
+            toolbar="bottom"
+            hide-tabs="true"
+            style={{ width: '100%', height: '100%' }}
+          ></tableau-viz>
+        </div>
+
+        <p className="tableau-embed-guidance">
+          Hover for state and regional details. Click a state to focus the view, or use Explore a Region to highlight every state in that region.
+        </p>
+      </div>
+    </section>
+  )
+}
+
 function ViewerModal({ viewer, onClose }) {
   useEffect(() => {
     if (!viewer) return undefined
@@ -793,6 +845,7 @@ function App() {
         </a>
         <nav aria-label="Primary navigation">
           <a href="#analytics">Analytics</a>
+          <a href="#heat-map">Heat Map</a>
           <a href="#forecast">Forecast</a>
           <a href="#architecture">Architecture</a>
           <a href="#dashboards">Dashboards</a>
@@ -812,7 +865,7 @@ function App() {
             <p className="eyebrow">Public Data · Python · FastAPI · AWS · Tableau</p>
             <h1>Disaster Intelligence Dashboard</h1>
             <p className="hero-summary">
-              Explore declaration history by time, incident type, state, and region. Use the interactive dashboard for quick comparisons, open Streamlit for state-level searches, and review future monthly estimates in the forecast section.
+              Explore declaration history by time, incident type, state, and region. Use the interactive dashboard for quick comparisons, explore the embedded heat map, open Streamlit for state-level searches, and review future monthly estimates in the forecast section.
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="#analytics">Explore Website Analytics</a>
@@ -826,7 +879,7 @@ function App() {
               <button
                 className="secondary-button"
                 type="button"
-                onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}
+                onClick={() => setViewer(TABLEAU_VIEWER)}
               >
                 View Tableau Heat Map Popout
               </button>
@@ -966,6 +1019,8 @@ function App() {
           </div>
         </section>
 
+        <TableauHeatMapSection onOpen={() => setViewer(TABLEAU_VIEWER)} />
+
         <section className="forecast-section" id="forecast">
           <div className="section-heading forecast-heading">
             <div>
@@ -1094,10 +1149,10 @@ function App() {
               <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Open State Search Popout</button>
             </article>
             <article>
-              <span className={`dashboard-tag ${TABLEAU_URL ? 'live' : 'development'}`}>{TABLEAU_URL ? 'Published' : 'In development'}</span>
+              <span className="dashboard-tag live">Published</span>
               <h3>Tableau Disaster Heat Map</h3>
               <p>Explore an interactive state-level disaster heat map with geographic hotspots, regional comparisons, incident patterns, filters, and presentation-ready KPIs.</p>
-              <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}>View Heat Map Popout via Tableau</button>
+              <button type="button" onClick={() => setViewer(TABLEAU_VIEWER)}>View Heat Map Popout via Tableau</button>
             </article>
           </div>
         </section>
@@ -1123,7 +1178,7 @@ function App() {
         </div>
         <div className="footer-links">
           <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit State Search</button>
-          <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}>Tableau Heat Map</button>
+          <button type="button" onClick={() => setViewer(TABLEAU_VIEWER)}>Tableau Heat Map</button>
           {GITHUB_URL ? <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> : <span>Private GitHub repository</span>}
           <a href="#top">Back to top</a>
         </div>

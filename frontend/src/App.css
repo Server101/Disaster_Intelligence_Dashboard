@@ -283,6 +283,7 @@ footer {
 }
 
 .analytics-section,
+.tableau-section,
 .forecast-section,
 .architecture-section,
 .dashboard-section,
@@ -917,6 +918,83 @@ footer {
   font-size: 0.8rem;
 }
 
+.tableau-embed-shell {
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 18px;
+  background: #0a1524;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
+}
+
+.tableau-embed-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.tableau-embed-toolbar > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tableau-embed-toolbar span {
+  color: #71839c;
+  font-size: 0.61rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tableau-embed-toolbar strong {
+  color: #edf5fd;
+  font-size: 1rem;
+}
+
+.tableau-embed-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.tableau-embed-actions button,
+.tableau-embed-actions a {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 9px;
+  background: rgba(14, 165, 233, 0.08);
+  color: #bae6fd;
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tableau-embed-frame {
+  width: 100%;
+  height: clamp(680px, 67vw, 880px);
+  background: #f8fafc;
+}
+
+.tableau-embed-frame tableau-viz {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tableau-embed-guidance {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  color: #71839a;
+  font-size: 0.68rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
 .forecast-controls {
   display: flex;
   flex-wrap: wrap;
@@ -1352,6 +1430,22 @@ body.modal-open {
   }
 }
 
+@media (max-width: 920px) {
+  .tableau-embed-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tableau-embed-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .tableau-embed-frame {
+    height: 760px;
+  }
+}
+
 @media (max-width: 820px) {
   .site-header,
   main,
@@ -1418,6 +1512,7 @@ body.modal-open {
   }
 
   .analytics-section,
+  .tableau-section,
   .forecast-section,
   .architecture-section,
   .dashboard-section,
@@ -1428,6 +1523,23 @@ body.modal-open {
   footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 620px) {
+  .tableau-embed-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .tableau-embed-actions button,
+  .tableau-embed-actions a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .tableau-embed-frame {
+    height: 720px;
   }
 }
 
