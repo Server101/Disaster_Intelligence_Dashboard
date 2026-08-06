@@ -383,6 +383,13 @@ function InsightExplorer({
                 const rows = (item.points || []).filter((point) => point.record_type === 'Forecast' && point.month >= forecastFloor)
                 const total = rows.reduce((sum, point) => sum + point.declaration_records, 0)
                 const peak = rows.length ? rows.reduce((best, point) => point.declaration_records > best.declaration_records ? point : best) : null
+                const incidentTotals = rows.reduce((totals, point) => {
+                  if (!point.likely_incident_type) return totals
+                  totals[point.likely_incident_type] = (totals[point.likely_incident_type] || 0) + point.declaration_records
+                  return totals
+                }, {})
+                const likelyType = Object.entries(incidentTotals).sort((left, right) => right[1] - left[1])[0]?.[0] || 'N/A'
+                const likelyAreas = rows.find((point) => point.likely_incident_type === likelyType)?.likely_areas || 'Region-wide'
                 return (
                   <article key={item.region}>
                     <span>{formatRegionLabel(item.region, true)}</span>
@@ -390,13 +397,15 @@ function InsightExplorer({
                     <small>forecast-period records</small>
                     <div><b>Starts</b><em>{monthLabel(item.forecast_start || rows[0]?.month)}</em></div>
                     <div><b>Peak</b><em>{peak ? `${monthLabel(peak.month)} · ${formatNumber.format(peak.declaration_records)}` : 'N/A'}</em></div>
+                    <div><b>Likely type</b><em>{likelyType}</em></div>
+                    <div><b>Focus areas</b><em>{likelyAreas}</em></div>
                     <p>{item.method}</p>
                   </article>
                 )
               })}
             </div>
             <InsightLimitation>
-              Regional forecasts estimate future administrative declaration-record volume. They do not predict a specific disaster, location, timing, severity, or financial loss.
+              Incident categories are based on recurring region-wide patterns for each calendar month. They are not city-level predictions or guarantees that a specific event will occur.
             </InsightLimitation>
           </div>
         ) : null}
@@ -531,7 +540,7 @@ function ViewerModal({ viewer, onClose }) {
           ></iframe>
         ) : (
           <div className="viewer-pending">
-            <strong>Tableau publishing link pending</strong>
+            <strong>Tableau heat map publishing link pending</strong>
             <p>Add the published Tableau URL to VITE_TABLEAU_URL before the production frontend build.</p>
           </div>
         )}
@@ -722,6 +731,16 @@ function App() {
   const forecastPeak = forecastRows.length
     ? forecastRows.reduce((highest, row) => (row.declaration_records > highest.declaration_records ? row : highest))
     : null
+  const forecastIncidentTotals = forecastRows.reduce((totals, row) => {
+    if (!row.likely_incident_type) return totals
+    totals[row.likely_incident_type] = (totals[row.likely_incident_type] || 0) + row.declaration_records
+    return totals
+  }, {})
+  const forecastLeadingIncident = Object.entries(forecastIncidentTotals)
+    .sort((left, right) => right[1] - left[1])[0]?.[0] || 'N/A'
+  const forecastLeadingAreas = forecastRows.find(
+    (row) => row.likely_incident_type === forecastLeadingIncident,
+  )?.likely_areas || 'Region-wide'
   const filterDisabled = apiState !== 'connected'
 
   const updateStartYear = (value) => {
@@ -740,11 +759,15 @@ function App() {
 
   const downloadForecast = () => {
     const lines = [
-      'region,month,recordType,declarationRecords,lowerEstimate,upperEstimate',
+      'region,month,recordType,likelyIncidentType,incidentTypeSupport,incidentTypeConfidence,likelyAreas,declarationRecords,lowerEstimate,upperEstimate',
       ...forecastRows.map((row) => [
         forecast.region,
         `${row.month}-01`,
         row.record_type,
+        row.likely_incident_type || '',
+        row.incident_type_support ?? '',
+        row.incident_type_confidence || '',
+        row.likely_areas || '',
         row.declaration_records,
         row.lower_estimate ?? '',
         row.upper_estimate ?? '',
@@ -803,9 +826,9 @@ function App() {
               <button
                 className="secondary-button"
                 type="button"
-                onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}
+                onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}
               >
-                View Tableau Map Popout
+                View Tableau Heat Map Popout
               </button>
             </div>
             <div className={`api-status ${apiState}`}>
@@ -949,7 +972,7 @@ function App() {
               <p className="section-label">Regional forecasting</p>
               <h2>Forecast future monthly declaration-record volume by region.</h2>
             </div>
-            <p>Choose a region and forecast length to view expected monthly declaration volume, recent history, and a reasonable range for each future month.</p>
+            <p>Choose a region and forecast length to view expected monthly record volume, likely incident categories, recent history, and a reasonable range for each future month.</p>
           </div>
 
           <div className="forecast-controls">
@@ -989,17 +1012,25 @@ function App() {
                 <strong>{monthLabel(forecast.forecast_start || forecastRows[0]?.month)}</strong>
                 <small>{forecast.training_through ? `As of ${forecast.as_of_date || 'today'} · trained through ${monthLabel(forecast.training_through)}` : 'Future months only'}</small>
               </div>
+              <div>
+                <span>Leading incident category</span>
+                <strong>{forecastLeadingIncident}</strong>
+                <small>{forecastLeadingAreas}</small>
+              </div>
               <p>{forecast.method}{forecast.validation_mae !== null && forecast.validation_mae !== undefined ? ` · Validation MAE ${forecast.validation_mae.toFixed(1)} records` : ''}</p>
             </aside>
           </div>
 
           <div className="forecast-table-wrap">
             <table>
-              <thead><tr><th>Month</th><th>Forecast records</th><th>Lower estimate</th><th>Upper estimate</th></tr></thead>
+              <thead><tr><th>Month</th><th>Likely incident category</th><th>Historical focus areas</th><th>Historical support</th><th>Forecast records</th><th>Lower estimate</th><th>Upper estimate</th></tr></thead>
               <tbody>
                 {forecastRows.map((row) => (
                   <tr key={row.month}>
                     <td>{new Date(`${row.month}-01T00:00:00`).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</td>
+                    <td>{row.likely_incident_type || 'N/A'}</td>
+                    <td>{row.likely_areas || 'Region-wide'}</td>
+                    <td>{row.incident_type_support !== null && row.incident_type_support !== undefined ? `${row.incident_type_support.toFixed(1)}% · ${row.incident_type_confidence || 'Historical pattern'}` : 'N/A'}</td>
                     <td>{formatNumber.format(row.declaration_records)}</td>
                     <td>{row.lower_estimate === null ? '—' : formatNumber.format(row.lower_estimate)}</td>
                     <td>{row.upper_estimate === null ? '—' : formatNumber.format(row.upper_estimate)}</td>
@@ -1009,7 +1040,7 @@ function App() {
             </table>
           </div>
           <div className="forecast-warning">
-            Use this forecast as a planning guide for future monthly declaration volume. Results begin with the next full month and may change as new records are reported. It estimates record activity, not the timing or severity of individual disasters.
+            Use the monthly volume and likely incident category as planning guides. The category is selected from recurring historical patterns within the chosen region and calendar month, so it will reflect regional conditions rather than claim that a specific event will happen in a specific city.
           </div>
         </section>
 
@@ -1051,9 +1082,9 @@ function App() {
           <div className="section-heading">
             <div>
               <p className="section-label">Embedded project dashboards</p>
-              <h2>Search declarations by state in Streamlit and explore the disaster map in Tableau.</h2>
+              <h2>Search declarations by state in Streamlit and explore the disaster heat map in Tableau.</h2>
             </div>
-            <p>Use Streamlit to search and filter records by state or territory, or open the Tableau map to explore geographic patterns. Each tool can open here or in a separate window.</p>
+            <p>Use Streamlit to search and filter records by state or territory, or open the Tableau heat map to compare geographic concentrations. Each tool can open here or in a separate window.</p>
           </div>
           <div className="dashboard-grid dashboard-grid-two">
             <article>
@@ -1064,9 +1095,9 @@ function App() {
             </article>
             <article>
               <span className={`dashboard-tag ${TABLEAU_URL ? 'live' : 'development'}`}>{TABLEAU_URL ? 'Published' : 'In development'}</span>
-              <h3>Tableau Disaster Map</h3>
-              <p>Explore an interactive state-level disaster map with geographic hotspots, regional comparisons, incident patterns, filters, and presentation-ready KPIs.</p>
-              <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}>View Map Popout via Tableau</button>
+              <h3>Tableau Disaster Heat Map</h3>
+              <p>Explore an interactive state-level disaster heat map with geographic hotspots, regional comparisons, incident patterns, filters, and presentation-ready KPIs.</p>
+              <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}>View Heat Map Popout via Tableau</button>
             </article>
           </div>
         </section>
@@ -1092,7 +1123,7 @@ function App() {
         </div>
         <div className="footer-links">
           <button type="button" onClick={() => setViewer(STREAMLIT_VIEWER)}>Streamlit State Search</button>
-          <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Map', url: TABLEAU_URL })}>Tableau Map</button>
+          <button type="button" onClick={() => setViewer({ title: 'Tableau Disaster Heat Map', url: TABLEAU_URL })}>Tableau Heat Map</button>
           {GITHUB_URL ? <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> : <span>Private GitHub repository</span>}
           <a href="#top">Back to top</a>
         </div>

@@ -109,7 +109,24 @@ class AwsDataService:
                     not forecast.empty
                     and pd.Timestamp(forecast["month"].iloc[0]) == forecast_floor
                 )
-                if not candidate.empty and len(forecast) >= horizon and starts_on_time:
+                type_columns = {
+                    "likelyIncidentType",
+                    "incidentTypeSupport",
+                    "incidentTypeConfidence",
+                    "likelyAreas",
+                    "incidentTypeMethod",
+                    "incidentTypeLimitation",
+                }
+                has_type_estimates = type_columns.issubset(stored.columns) and (
+                    not forecast.empty
+                    and forecast["likelyIncidentType"].notna().all()
+                )
+                if (
+                    not candidate.empty
+                    and len(forecast) >= horizon
+                    and starts_on_time
+                    and has_type_estimates
+                ):
                     combined = candidate
             except Exception:
                 combined = None

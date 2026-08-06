@@ -544,6 +544,18 @@ def forecast(
         and forecast_frame["validationMae"].notna().any()
         else None
     )
+    type_method = (
+        str(forecast_frame["incidentTypeMethod"].dropna().iloc[0])
+        if "incidentTypeMethod" in forecast_frame.columns
+        and forecast_frame["incidentTypeMethod"].notna().any()
+        else None
+    )
+    type_limitation = (
+        str(forecast_frame["incidentTypeLimitation"].dropna().iloc[0])
+        if "incidentTypeLimitation" in forecast_frame.columns
+        and forecast_frame["incidentTypeLimitation"].notna().any()
+        else None
+    )
     points = []
     for row in forecast_frame.itertuples(index=False):
         points.append(
@@ -557,6 +569,18 @@ def forecast(
                 upper_estimate=int(row.upperEstimate)
                 if pd.notna(row.upperEstimate)
                 else None,
+                likely_incident_type=str(row.likelyIncidentType)
+                if hasattr(row, "likelyIncidentType") and pd.notna(row.likelyIncidentType)
+                else None,
+                incident_type_support=float(row.incidentTypeSupport)
+                if hasattr(row, "incidentTypeSupport") and pd.notna(row.incidentTypeSupport)
+                else None,
+                incident_type_confidence=str(row.incidentTypeConfidence)
+                if hasattr(row, "incidentTypeConfidence") and pd.notna(row.incidentTypeConfidence)
+                else None,
+                likely_areas=str(row.likelyAreas)
+                if hasattr(row, "likelyAreas") and pd.notna(row.likelyAreas)
+                else None,
             )
         )
 
@@ -564,6 +588,8 @@ def forecast(
         region=region,
         horizon=horizon,
         method=method,
+        type_method=type_method,
+        type_limitation=type_limitation,
         generated_at=generated_at,
         as_of_date=as_of_date,
         training_through=training_through,

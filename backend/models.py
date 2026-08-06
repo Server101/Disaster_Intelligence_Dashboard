@@ -101,12 +101,18 @@ class ForecastPoint(BaseModel):
     declaration_records: int
     lower_estimate: int | None = None
     upper_estimate: int | None = None
+    likely_incident_type: str | None = None
+    incident_type_support: float | None = None
+    incident_type_confidence: str | None = None
+    likely_areas: str | None = None
 
 
 class ForecastResponse(BaseModel):
     region: str
     horizon: int = Field(ge=1, le=24)
     method: str
+    type_method: str | None = None
+    type_limitation: str | None = None
     generated_at: str
     as_of_date: str | None = None
     training_through: str | None = None

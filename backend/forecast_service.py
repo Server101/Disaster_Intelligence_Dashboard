@@ -9,9 +9,17 @@ FORECAST_METHOD = (
     "Backtested monthly forecasting with seasonal-trend regression and "
     "a seasonal-naive benchmark"
 )
+INCIDENT_TYPE_METHOD = (
+    "Recency-weighted regional month-of-year occurrence model using completed history"
+)
+INCIDENT_TYPE_LIMITATION = (
+    "Likely incident categories describe region-wide historical patterns. They do not "
+    "predict a specific city, storm, or emergency."
+)
 SEASON_LENGTH = 12
 MAX_TRAINING_MONTHS = 180
 VALIDATION_MONTHS = 12
+INCIDENT_HALF_LIFE_MONTHS = 60.0
 
 
 def _month_start(value: date | datetime | pd.Timestamp | None = None) -> pd.Timestamp:
@@ -66,6 +74,191 @@ def _monthly_counts(
     history = counts.reindex(month_index, fill_value=0).rename_axis("month").reset_index()
     history["declarationRecords"] = history["declarationRecords"].astype(float)
     return history
+
+
+def _incident_type_history(
+    frame: pd.DataFrame,
+    region: str,
+    as_of: date | datetime | pd.Timestamp | None = None,
+) -> pd.DataFrame:
+    required_columns = {"declarationDate", "femaRegion", "incidentType"}
+    missing_columns = required_columns.difference(frame.columns)
+    if missing_columns:
+        missing_text = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Incident-type data is missing required columns: {missing_text}")
+
+    current_month = _month_start(as_of)
+    source_columns = ["declarationDate", "incidentType"]
+    if "state" in frame.columns:
+        source_columns.append("state")
+    regional = frame.loc[
+        (frame["femaRegion"] == region)
+        & frame["declarationDate"].notna()
+        & frame["incidentType"].notna(),
+        source_columns,
+    ].copy()
+    regional["declarationDate"] = pd.to_datetime(
+        regional["declarationDate"],
+        errors="coerce",
+        utc=True,
+    ).dt.tz_convert(None)
+    regional["incidentType"] = (
+        regional["incidentType"].astype("string").str.strip().str.title()
+    )
+    if "state" in regional.columns:
+        regional["state"] = regional["state"].astype("string").str.strip().str.upper()
+    else:
+        regional["state"] = "Region-wide"
+    regional = regional.loc[
+        regional["declarationDate"].notna()
+        & (regional["declarationDate"] < current_month)
+        & regional["incidentType"].notna()
+        & ~regional["incidentType"].isin(["", "Not Reported"])
+    ]
+    regional["state"] = regional["state"].fillna("Region-wide")
+    regional.loc[regional["state"].isin(["", "NOT REPORTED"]), "state"] = "Region-wide"
+    regional["month"] = regional["declarationDate"].dt.to_period("M").dt.to_timestamp()
+    regional = regional.loc[
+        regional["month"] >= current_month - pd.DateOffset(months=MAX_TRAINING_MONTHS)
+    ]
+
+    if regional.empty:
+        return pd.DataFrame(
+            columns=["year", "monthNumber", "incidentType", "month", "weight"]
+        )
+
+    regional["year"] = regional["month"].dt.year.astype(int)
+    regional["monthNumber"] = regional["month"].dt.month.astype(int)
+    occurrences = regional.drop_duplicates(
+        subset=["year", "monthNumber", "incidentType", "state"]
+    ).copy()
+    age_months = (
+        (current_month.year - occurrences["month"].dt.year) * 12
+        + current_month.month
+        - occurrences["month"].dt.month
+    ).clip(lower=0)
+    occurrences["weight"] = np.power(0.5, age_months / INCIDENT_HALF_LIFE_MONTHS)
+    return occurrences.reset_index(drop=True)
+
+
+def _weighted_type_distribution(history: pd.DataFrame) -> pd.Series:
+    if history.empty:
+        return pd.Series(dtype=float)
+    recurrence = history.drop_duplicates(
+        subset=["year", "monthNumber", "incidentType"]
+    )
+    scores = recurrence.groupby("incidentType")["weight"].sum().sort_values(ascending=False)
+    total = float(scores.sum())
+    if total <= 0:
+        return pd.Series(dtype=float)
+    return scores / total
+
+
+def _incident_type_estimates(
+    frame: pd.DataFrame,
+    region: str,
+    future_months: pd.DatetimeIndex,
+    as_of: date | datetime | pd.Timestamp | None = None,
+) -> list[dict[str, object]]:
+    history = _incident_type_history(frame, region, as_of=as_of)
+    if history.empty:
+        return [
+            {
+                "likelyIncidentType": "Not enough history",
+                "incidentTypeSupport": 0.0,
+                "incidentTypeConfidence": "Limited historical pattern",
+                "likelyAreas": "Region-wide",
+            }
+            for _ in future_months
+        ]
+
+    overall_distribution = _weighted_type_distribution(history)
+    estimates: list[dict[str, object]] = []
+
+    for forecast_month in future_months:
+        target_month = int(forecast_month.month)
+        previous_month = 12 if target_month == 1 else target_month - 1
+        next_month = 1 if target_month == 12 else target_month + 1
+
+        exact = history.loc[history["monthNumber"] == target_month]
+        adjacent = history.loc[
+            history["monthNumber"].isin([previous_month, next_month])
+        ]
+        exact_distribution = _weighted_type_distribution(exact)
+        adjacent_distribution = _weighted_type_distribution(adjacent)
+        exact_year_count = int(exact["year"].nunique())
+
+        if exact_distribution.empty:
+            exact_weight = 0.0
+            adjacent_weight = 0.45 if not adjacent_distribution.empty else 0.0
+        elif exact_year_count >= 8:
+            exact_weight = 0.70
+            adjacent_weight = 0.20 if not adjacent_distribution.empty else 0.0
+        elif exact_year_count >= 4:
+            exact_weight = 0.55
+            adjacent_weight = 0.25 if not adjacent_distribution.empty else 0.0
+        else:
+            exact_weight = 0.40
+            adjacent_weight = 0.30 if not adjacent_distribution.empty else 0.0
+
+        overall_weight = max(0.0, 1.0 - exact_weight - adjacent_weight)
+        combined = pd.Series(dtype=float)
+        if exact_weight:
+            combined = combined.add(exact_distribution * exact_weight, fill_value=0.0)
+        if adjacent_weight:
+            combined = combined.add(
+                adjacent_distribution * adjacent_weight,
+                fill_value=0.0,
+            )
+        combined = combined.add(overall_distribution * overall_weight, fill_value=0.0)
+
+        if combined.empty or float(combined.sum()) <= 0:
+            likely_type = "Not enough history"
+            support = 0.0
+            type_year_count = 0
+        else:
+            combined = combined / float(combined.sum())
+            likely_type = str(combined.idxmax())
+            support = float(combined.max() * 100.0)
+            type_year_count = int(
+                exact.loc[exact["incidentType"] == likely_type, "year"].nunique()
+            )
+
+        if support >= 50.0 and type_year_count >= 5:
+            confidence = "Strong historical pattern"
+        elif support >= 32.0 and type_year_count >= 3:
+            confidence = "Moderate historical pattern"
+        else:
+            confidence = "Limited historical pattern"
+
+        exact_areas = exact.loc[exact["incidentType"] == likely_type].copy()
+        adjacent_areas = adjacent.loc[adjacent["incidentType"] == likely_type].copy()
+        exact_areas["areaWeight"] = exact_areas["weight"]
+        adjacent_areas["areaWeight"] = adjacent_areas["weight"] * 0.35
+        area_history = pd.concat([exact_areas, adjacent_areas], ignore_index=True)
+        if area_history.empty:
+            area_history = history.loc[history["incidentType"] == likely_type].copy()
+            area_history["areaWeight"] = area_history["weight"] * 0.15
+        area_scores = (
+            area_history.loc[area_history["state"] != "Region-wide"]
+            .groupby("state")["areaWeight"]
+            .sum()
+            .sort_values(ascending=False)
+        )
+        likely_areas = ", ".join(area_scores.head(3).index.tolist())
+        if not likely_areas:
+            likely_areas = "Region-wide"
+
+        estimates.append(
+            {
+                "likelyIncidentType": likely_type,
+                "incidentTypeSupport": round(support, 1),
+                "incidentTypeConfidence": confidence,
+                "likelyAreas": likely_areas,
+            }
+        )
+
+    return estimates
 
 
 def _month_offsets(months: pd.Series | pd.DatetimeIndex, origin: pd.Timestamp) -> np.ndarray:
@@ -227,6 +420,12 @@ def generate_region_forecast(
     else:
         estimates = _regression_predictions(history, future_months)
 
+    incident_estimates = _incident_type_estimates(
+        frame,
+        region,
+        future_months,
+        as_of=as_of,
+    )
     residual_scale = _residual_scale(history, model_name)
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     as_of_date = pd.Timestamp(as_of or datetime.now(timezone.utc)).date().isoformat()
@@ -238,9 +437,16 @@ def generate_region_forecast(
     displayed_history["recordType"] = "Historical"
     displayed_history["lowerEstimate"] = pd.NA
     displayed_history["upperEstimate"] = pd.NA
+    displayed_history["likelyIncidentType"] = None
+    displayed_history["incidentTypeSupport"] = np.nan
+    displayed_history["incidentTypeConfidence"] = None
+    displayed_history["likelyAreas"] = None
 
     forecast_rows = []
-    for step, (forecast_month, estimate) in enumerate(zip(future_months, estimates), start=1):
+    for step, (forecast_month, estimate, incident_estimate) in enumerate(
+        zip(future_months, estimates, incident_estimates),
+        start=1,
+    ):
         uncertainty = 1.28 * residual_scale * np.sqrt(1.0 + step / 12.0)
         forecast_rows.append(
             {
@@ -250,6 +456,7 @@ def generate_region_forecast(
                 "declarationRecords": round(max(0.0, estimate)),
                 "lowerEstimate": round(max(0.0, estimate - uncertainty)),
                 "upperEstimate": round(max(0.0, estimate + uncertainty)),
+                **incident_estimate,
             }
         )
 
@@ -258,6 +465,10 @@ def generate_region_forecast(
     combined["declarationRecords"] = combined["declarationRecords"].round().astype("Int64")
     combined["lowerEstimate"] = combined["lowerEstimate"].astype("Int64")
     combined["upperEstimate"] = combined["upperEstimate"].astype("Int64")
+    combined["incidentTypeSupport"] = pd.to_numeric(
+        combined["incidentTypeSupport"],
+        errors="coerce",
+    ).astype("Float64")
 
     validation_text = (
         f"; 12-month holdout MAE {validation_mae:.1f} records"
@@ -265,6 +476,8 @@ def generate_region_forecast(
         else "; limited-history validation"
     )
     combined["method"] = f"Backtested {model_name}{validation_text}"
+    combined["incidentTypeMethod"] = INCIDENT_TYPE_METHOD
+    combined["incidentTypeLimitation"] = INCIDENT_TYPE_LIMITATION
     combined["generatedAt"] = generated_at
     combined["asOfDate"] = as_of_date
     combined["trainingThrough"] = training_through
@@ -279,7 +492,13 @@ def generate_region_forecast(
             "declarationRecords",
             "lowerEstimate",
             "upperEstimate",
+            "likelyIncidentType",
+            "incidentTypeSupport",
+            "incidentTypeConfidence",
+            "likelyAreas",
             "method",
+            "incidentTypeMethod",
+            "incidentTypeLimitation",
             "generatedAt",
             "asOfDate",
             "trainingThrough",
@@ -315,6 +534,6 @@ def generate_all_region_forecasts(
     ]
 
     if not forecasts:
-        raise ValueError("No FEMA regions are available for forecasting.")
+        raise ValueError("No regions are available for forecasting.")
 
     return pd.concat(forecasts, ignore_index=True)

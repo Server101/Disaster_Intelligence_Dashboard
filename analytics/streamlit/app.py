@@ -109,6 +109,10 @@ def load_region_forecast(
                     "declaration_records": "declarationRecords",
                     "lower_estimate": "lowerEstimate",
                     "upper_estimate": "upperEstimate",
+                    "likely_incident_type": "likelyIncidentType",
+                    "incident_type_support": "incidentTypeSupport",
+                    "incident_type_confidence": "incidentTypeConfidence",
+                    "likely_areas": "likelyAreas",
                 }
             )
             api_frame["month"] = pd.to_datetime(api_frame["month"], errors="coerce")
@@ -119,6 +123,8 @@ def load_region_forecast(
             api_frame["trainingThrough"] = payload.get("training_through")
             api_frame["forecastStart"] = payload.get("forecast_start")
             api_frame["validationMae"] = payload.get("validation_mae")
+            api_frame["incidentTypeMethod"] = payload.get("type_method")
+            api_frame["incidentTypeLimitation"] = payload.get("type_limitation")
             return api_frame, "AWS backend API"
         except Exception:
             pass
@@ -421,8 +427,8 @@ with geography_tab:
 with forecast_tab:
     st.subheader("Monthly Declaration-Record Forecast")
     st.write(
-        "Select a FEMA region and forecast horizon to estimate future monthly "
-        "declaration-record volume. The forecast does not predict individual disasters."
+        "Select a region and forecast horizon to estimate future monthly record volume "
+        "and the most historically supported incident category for each month."
     )
 
     forecast_controls = st.columns([2, 1])
@@ -478,6 +484,14 @@ with forecast_tab:
             (forecast_data["recordType"] == "Forecast")
             & (forecast_data["month"] >= forecast_floor)
         ].head(forecast_horizon).copy()
+        for column, default in {
+            "likelyIncidentType": pd.NA,
+            "incidentTypeSupport": pd.NA,
+            "incidentTypeConfidence": pd.NA,
+            "likelyAreas": pd.NA,
+        }.items():
+            if column not in projected_data.columns:
+                projected_data[column] = default
         chart_data = pd.concat([historical_data, projected_data], ignore_index=True)
 
         forecast_figure = px.line(
@@ -510,7 +524,14 @@ with forecast_tab:
             peak_row = projected_data.loc[
                 projected_data["declarationRecords"].idxmax()
             ]
-            forecast_metrics = st.columns(3)
+            type_totals = (
+                projected_data.dropna(subset=["likelyIncidentType"])
+                .groupby("likelyIncidentType")["declarationRecords"]
+                .sum()
+                .sort_values(ascending=False)
+            )
+            leading_type = str(type_totals.index[0]) if not type_totals.empty else "N/A"
+            forecast_metrics = st.columns(4)
             forecast_metrics[0].metric(
                 "Forecast-Period Records",
                 f"{forecast_total:,}",
@@ -524,10 +545,19 @@ with forecast_tab:
                 pd.Timestamp(peak_row["month"]).strftime("%b %Y"),
                 f"{int(peak_row['declarationRecords']):,} records",
             )
+            forecast_metrics[3].metric(
+                "Leading Incident Category",
+                leading_type,
+                "Region-wide historical pattern",
+            )
 
         forecast_table = projected_data[
             [
                 "month",
+                "likelyIncidentType",
+                "incidentTypeSupport",
+                "incidentTypeConfidence",
+                "likelyAreas",
                 "declarationRecords",
                 "lowerEstimate",
                 "upperEstimate",
@@ -535,6 +565,10 @@ with forecast_tab:
         ].copy()
         forecast_table.columns = [
             "Month",
+            "Likely Incident Category",
+            "Historical Support",
+            "Pattern Strength",
+            "Historical Focus Areas",
             "Forecast Declaration Records",
             "Lower Estimate",
             "Upper Estimate",
@@ -545,6 +579,10 @@ with forecast_tab:
             hide_index=True,
             column_config={
                 "Month": st.column_config.DateColumn("Month", format="MMM YYYY"),
+                "Historical Support": st.column_config.NumberColumn(
+                    "Historical Support",
+                    format="%.1f%%",
+                ),
             },
         )
 
@@ -584,10 +622,9 @@ with forecast_tab:
             f"and the first forecast month is {forecast_start_value}."
         )
         st.warning(
-            "Forecast values estimate administrative declaration-record volume. "
-            "They do not predict the timing, location, severity, or occurrence of "
-            "individual disasters. Extreme declaration months can make the estimate "
-            "less stable, and historical patterns may not continue."
+            "Use the likely incident category as a region-wide planning signal. It is "
+            "based on recurring historical patterns for that region and month, not a "
+            "city-level prediction or a guarantee that a specific event will occur."
         )
         if is_sample:
             st.warning(
